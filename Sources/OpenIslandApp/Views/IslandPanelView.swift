@@ -1602,10 +1602,10 @@ private struct IslandSessionRow: View {
             )
 
             HStack(spacing: 8) {
-                Button("No") { onApprove?(.deny) }
-                    .buttonStyle(IslandWideButtonStyle(kind: .secondary))
-                Button("Yes") { onApprove?(.allowOnce) }
-                    .buttonStyle(IslandWideButtonStyle(kind: .warning))
+                Button(session.permissionRequest?.secondaryActionTitle ?? "Deny") { onApprove?(.deny) }
+                    .buttonStyle(IslandActionButtonStyle(kind: .secondary, expands: true))
+                Button(session.permissionRequest?.primaryActionTitle ?? "Allow") { onApprove?(.allowOnce) }
+                    .buttonStyle(IslandActionButtonStyle(kind: .warning, expands: true))
                 if let toolName = session.permissionRequest?.toolName {
                     Button("Always Allow (\(toolName))") {
                         let rule = ClaudePermissionRuleValue(toolName: toolName)
@@ -1616,7 +1616,7 @@ private struct IslandSessionRow: View {
                         )
                         onApprove?(.allowWithUpdates([update]))
                     }
-                    .buttonStyle(IslandWideButtonStyle(kind: .danger))
+                    .buttonStyle(IslandActionButtonStyle(kind: .primary, expands: true))
                 }
             }
         }
@@ -1974,9 +1974,10 @@ private struct StructuredQuestionPromptView: View {
 
     @State private var selections: [String: Set<String>] = [:]
     @State private var freeformTexts: [String: String] = [:]
+    @State private var typedReply: String = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             if showsPromptTitle {
                 Text(promptTitle)
                     .font(.system(size: 13, weight: .semibold))
@@ -1984,16 +1985,25 @@ private struct StructuredQuestionPromptView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(structuredQuestions, id: \.question) { question in
-                    questionRow(question)
+            if structuredQuestions.isEmpty {
+                freeformAnswerBody
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(structuredQuestions, id: \.question) { question in
+                        questionRow(question)
+                    }
                 }
 
-                Button(lang.t("question.submit")) {
-                    onAnswer(QuestionPromptResponse(answers: answerMap))
+                quickReplyField
+
+                HStack {
+                    Spacer(minLength: 0)
+                    Button(submitButtonTitle) {
+                        submitAnswer()
+                    }
+                    .buttonStyle(IslandActionButtonStyle(kind: canSubmit ? .primary : .secondary))
+                    .disabled(!canSubmit)
                 }
-                .buttonStyle(IslandWideButtonStyle(kind: .primary))
-                .disabled(!hasCompleteSelection)
             }
         }
         .padding(.horizontal, 10)
@@ -2026,10 +2036,9 @@ private struct StructuredQuestionPromptView: View {
                 .foregroundStyle(.white.opacity(0.88))
                 .fixedSize(horizontal: false, vertical: true)
 
-            // Vertical option list
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(question.options) { option in
-                    optionRow(option, question: question)
+                ForEach(Array(question.options.enumerated()), id: \.element.id) { index, option in
+                    optionRow(option, optionIndex: index, question: question)
                 }
             }
         }
@@ -2038,21 +2047,34 @@ private struct StructuredQuestionPromptView: View {
     // MARK: - Option row (vertical, CLI-style)
 
     @ViewBuilder
-    private func optionRow(_ option: QuestionOption, question: QuestionPromptItem) -> some View {
+    private func optionRow(
+        _ option: QuestionOption,
+        optionIndex: Int,
+        question: QuestionPromptItem
+    ) -> some View {
         let isSelected = selectedLabels(for: question).contains(option.label)
         let showsFreeform = option.allowsFreeform && isSelected
         VStack(alignment: .leading, spacing: 0) {
             Button {
                 toggle(option: option.label, for: question)
             } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(isSelected ? IslandDesignPalette.Status.waitingForAnswer : .white.opacity(0.35))
+                HStack(spacing: 10) {
+                    Text("\(optionIndex + 1)")
+                        .font(.system(size: 10.5, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(isSelected ? .black.opacity(0.82) : V6Palette.paper.opacity(0.42))
+                        .frame(width: 22, height: 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                .fill(isSelected ? V6Palette.paper.opacity(0.88) : Color.white.opacity(0.045))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                .strokeBorder(.white.opacity(isSelected ? 0 : 0.08))
+                        )
 
                     VStack(alignment: .leading, spacing: 1) {
                         Text(option.label)
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(size: 12.2, weight: .medium))
                             .foregroundStyle(.white.opacity(isSelected ? 1 : 0.78))
 
                         if !option.description.isEmpty {
@@ -2064,10 +2086,16 @@ private struct StructuredQuestionPromptView: View {
                     }
 
                     Spacer(minLength: 0)
+
+                    if isSelected {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(IslandDesignPalette.Status.completed)
+                    }
                 }
                 .contentShape(Rectangle())
-                .padding(.vertical, 4)
-                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .padding(.horizontal, 11)
             }
             .buttonStyle(.plain)
 
@@ -2079,11 +2107,11 @@ private struct StructuredQuestionPromptView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(isSelected ? IslandDesignPalette.Status.waitingForAnswer.opacity(0.10) : Color.white.opacity(0.04))
+                .fill(isSelected ? V6Palette.paper.opacity(0.10) : Color.white.opacity(0.04))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(isSelected ? IslandDesignPalette.Status.waitingForAnswer.opacity(0.25) : .clear)
+                .strokeBorder(isSelected ? V6Palette.paper.opacity(0.36) : .white.opacity(0.055))
         )
     }
 
@@ -2107,10 +2135,64 @@ private struct StructuredQuestionPromptView: View {
         .padding(.horizontal, 10)
     }
 
+    private var freeformAnswerBody: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            quickReplyField
+
+            HStack {
+                Spacer(minLength: 0)
+                Button(lang.t("question.submit")) {
+                    submitAnswer()
+                }
+                .buttonStyle(IslandActionButtonStyle(kind: canSubmit ? .primary : .secondary))
+                .disabled(!canSubmit)
+            }
+        }
+    }
+
+    private var quickReplyField: some View {
+        HStack(spacing: 6) {
+            ReplyTextField(
+                placeholder: lang.t("question.otherPlaceholder"),
+                text: $typedReply,
+                onSubmit: {
+                    if canSubmit {
+                        submitAnswer()
+                    }
+                }
+            )
+            .frame(height: 30)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(.white.opacity(0.06))
+        )
+    }
+
     // MARK: - Helpers
 
     private var structuredQuestions: [QuestionPromptItem] {
-        prompt?.questions ?? []
+        if let questions = prompt?.questions, !questions.isEmpty {
+            return questions
+        }
+
+        guard let prompt, !prompt.options.isEmpty else {
+            return []
+        }
+
+        return [
+            QuestionPromptItem(
+                question: prompt.title,
+                header: lang.t("question.answerNeeded"),
+                options: prompt.options.map { QuestionOption(label: $0) }
+            ),
+        ]
     }
 
     private var promptTitle: String {
@@ -2138,6 +2220,54 @@ private struct StructuredQuestionPromptView: View {
             }
             return (question.question, values.joined(separator: ", "))
         })
+    }
+
+    private var trimmedReply: String {
+        typedReply.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var primarySelectedAnswer: String? {
+        guard structuredQuestions.count == 1,
+              let question = structuredQuestions.first else {
+            return nil
+        }
+
+        let values = resolvedAnswers(for: question)
+        guard !values.isEmpty else {
+            return nil
+        }
+
+        return values.joined(separator: ", ")
+    }
+
+    private var canSubmit: Bool {
+        !trimmedReply.isEmpty || (!structuredQuestions.isEmpty && hasCompleteSelection)
+    }
+
+    private var submitButtonTitle: String {
+        if !trimmedReply.isEmpty {
+            return lang.t("question.sendReply")
+        }
+
+        if let primarySelectedAnswer, !primarySelectedAnswer.isEmpty {
+            return lang.t("question.sendAnswer")
+        }
+
+        return lang.t("question.submit")
+    }
+
+    private func submitAnswer() {
+        if !trimmedReply.isEmpty {
+            onAnswer(QuestionPromptResponse(answer: trimmedReply))
+            return
+        }
+
+        onAnswer(
+            QuestionPromptResponse(
+                rawAnswer: primarySelectedAnswer,
+                answers: answerMap
+            )
+        )
     }
 
     private var hasCompleteSelection: Bool {
@@ -2203,6 +2333,7 @@ private struct StructuredQuestionPromptView: View {
             }
         }
 
+        typedReply = ""
         selections[question.question] = selected
     }
 }
@@ -2300,45 +2431,63 @@ private struct IslandCompactButtonStyle: ButtonStyle {
     }
 }
 
-private struct IslandWideButtonStyle: ButtonStyle {
+private struct IslandActionButtonStyle: ButtonStyle {
     enum Kind {
         case primary
         case secondary
         case warning
-        case danger
     }
 
     let kind: Kind
+    var expands = false
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 11.5, weight: .semibold))
             .foregroundStyle(foregroundColor)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(backgroundColor(configuration.isPressed), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .lineLimit(1)
+            .frame(maxWidth: expands ? .infinity : nil)
+            .padding(.horizontal, 13)
+            .padding(.vertical, 8)
+            .background(backgroundColor(configuration.isPressed), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(strokeColor, lineWidth: 1)
+            )
+            .opacity(configuration.isPressed ? 0.82 : 1)
     }
 
     private var foregroundColor: Color {
         switch kind {
-        case .primary, .warning, .danger:
+        case .primary:
+            return .black.opacity(0.88)
+        case .warning:
             return .white
         case .secondary:
-            return .white.opacity(0.88)
+            return V6Palette.paper.opacity(0.78)
+        }
+    }
+
+    private var strokeColor: Color {
+        switch kind {
+        case .primary:
+            return V6Palette.paper.opacity(0.86)
+        case .warning:
+            return Color(red: 0.85, green: 0.55, blue: 0.15).opacity(0.42)
+        case .secondary:
+            return .white.opacity(0.07)
         }
     }
 
     private func backgroundColor(_ isPressed: Bool) -> Color {
-        let pressedFactor: Double = isPressed ? 0.78 : 1.0
+        let pressedFactor: Double = isPressed ? 0.78 : 1
         switch kind {
         case .primary:
-            return Color(red: 0.26, green: 0.45, blue: 0.86).opacity(pressedFactor)
-        case .secondary:
-            return Color.white.opacity(isPressed ? 0.12 : 0.16)
+            return V6Palette.paper.opacity(pressedFactor)
         case .warning:
             return Color(red: 0.85, green: 0.55, blue: 0.15).opacity(pressedFactor)
-        case .danger:
-            return Color(red: 0.82, green: 0.22, blue: 0.22).opacity(pressedFactor)
+        case .secondary:
+            return Color.white.opacity(isPressed ? 0.11 : 0.065)
         }
     }
 }

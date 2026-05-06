@@ -183,6 +183,8 @@
 "question.submit" = "提交答案";
 "question.answerNeeded" = "需要回答";
 "question.otherPlaceholder" = "输入你的回答…";
+"question.sendReply" = "发送回复";
+"question.sendAnswer" = "提交答案";
 
 /* Island Panel - Completion */
 "completion.done" = "完成";

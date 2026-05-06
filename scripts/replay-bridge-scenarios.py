@@ -84,6 +84,7 @@ def opencode_payload(
     tool_name: str | None = None,
     tool_input: str | None = None,
     question_text: str | None = None,
+    questions: list[dict[str, Any]] | None = None,
     last_assistant_message: str | None = None,
 ) -> dict[str, Any]:
     payload = {
@@ -100,6 +101,8 @@ def opencode_payload(
     if question_text is not None:
         payload["question_id"] = f"question-{session_id}"
         payload["question_text"] = question_text
+    if questions is not None:
+        payload["questions"] = questions
     if last_assistant_message is not None:
         payload["last_assistant_message"] = last_assistant_message
     return payload
@@ -186,6 +189,27 @@ def scenario_commands(scenario: str, cwd: str) -> list[tuple[str, dict[str, Any]
                         session_id,
                         cwd=cwd,
                         question_text="Which notification treatment should this session use?",
+                        questions=[
+                            {
+                                "question": "Which notification treatment should this session use?",
+                                "header": "Notification",
+                                "options": [
+                                    {
+                                        "label": "Inline choices",
+                                        "description": "Answer directly in the island",
+                                    },
+                                    {
+                                        "label": "Jump back",
+                                        "description": "Return to the terminal before answering",
+                                    },
+                                    {
+                                        "label": "Other",
+                                        "description": "Type a custom reply",
+                                        "allows_freeform": True,
+                                    },
+                                ],
+                            }
+                        ],
                     )
                 ),
                 False,

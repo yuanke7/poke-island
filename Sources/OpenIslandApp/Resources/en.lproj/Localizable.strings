@@ -183,6 +183,8 @@
 "question.submit" = "Submit Answers";
 "question.answerNeeded" = "Answer needed";
 "question.otherPlaceholder" = "Type your answer…";
+"question.sendReply" = "Send reply";
+"question.sendAnswer" = "Send answer";
 
 /* Island Panel - Completion */
 "completion.done" = "Done";

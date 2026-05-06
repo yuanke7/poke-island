@@ -422,6 +422,67 @@ struct SessionStateTests {
     }
 
     @Test
+    func openCodeQuestionAskedCarriesStructuredOptionsUntilAnswered() async throws {
+        let socketURL = BridgeSocketLocation.uniqueTestURL()
+        let server = BridgeServer(socketURL: socketURL)
+        try server.start()
+        defer { server.stop() }
+
+        let observer = LocalBridgeClient(socketURL: socketURL)
+        let stream = try observer.connect()
+        defer { observer.disconnect() }
+        try await observer.send(.registerClient(role: .observer))
+
+        let payload = OpenCodeHookPayload(
+            hookEventName: .questionAsked,
+            sessionID: "opencode-question-1",
+            cwd: "/tmp/worktree",
+            questionID: "question-1",
+            questionText: "Which notification treatment should this session use?",
+            questions: [
+                OpenCodeQuestionPayload(
+                    question: "Which notification treatment should this session use?",
+                    header: "Notification",
+                    options: [
+                        OpenCodeQuestionOptionPayload(
+                            label: "Inline choices",
+                            description: "Answer directly in the island"
+                        ),
+                        OpenCodeQuestionOptionPayload(
+                            label: "Jump back",
+                            description: "Return to the terminal first"
+                        ),
+                    ]
+                ),
+            ]
+        )
+
+        async let responseTask = sendOnGCDThread(.processOpenCodeHook(payload), socketURL: socketURL)
+
+        var iterator = stream.makeAsyncIterator()
+        let startedEvent = try await nextEvent(from: &iterator)
+        let questionEvent = try await nextEvent(from: &iterator)
+
+        #expect(startedEvent.isSessionStarted)
+        #expect(questionEvent.questionPrompt?.questions.first?.question == "Which notification treatment should this session use?")
+        #expect(questionEvent.questionPrompt?.questions.first?.options.map(\.label) == ["Inline choices", "Jump back"])
+        #expect(questionEvent.questionPrompt?.questions.first?.options.first?.description == "Answer directly in the island")
+
+        try await observer.send(
+            .answerQuestion(
+                sessionID: "opencode-question-1",
+                response: QuestionPromptResponse(answer: "Inline choices")
+            )
+        )
+
+        let activityEvent = try await nextEvent(from: &iterator)
+        let response = try await responseTask
+
+        #expect(activityEvent.activityUpdate?.summary == "Answered: Inline choices")
+        #expect(response == .openCodeHookDirective(.answer(text: "Inline choices")))
+    }
+
+    @Test
     func codexPreToolUseWaitsForApprovalAndReturnsDenyDirective() async throws {
         let socketURL = BridgeSocketLocation.uniqueTestURL()
         let server = BridgeServer(socketURL: socketURL)

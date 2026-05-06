@@ -1046,15 +1046,11 @@ public final class BridgeServer: @unchecked Sendable {
             synchronizeOpenCodeJumpTarget(for: payload)
             synchronizeOpenCodeMetadata(for: payload)
 
-            let questionTitle = payload.questionText ?? "OpenCode has a question for you."
             emit(
                 .questionAsked(
                     QuestionAsked(
                         sessionID: payload.sessionID,
-                        prompt: QuestionPrompt(
-                            title: questionTitle,
-                            options: []
-                        ),
+                        prompt: payload.questionPrompt,
                         timestamp: .now
                     )
                 )

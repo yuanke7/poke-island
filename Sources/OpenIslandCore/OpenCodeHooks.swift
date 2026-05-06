@@ -22,6 +22,7 @@ public struct OpenCodeHookPayload: Equatable, Codable, Sendable {
     public var permissionDescription: String?
     public var questionID: String?
     public var questionText: String?
+    public var questions: [OpenCodeQuestionPayload]?
     public var messageContent: String?
     public var model: String?
     public var prompt: String?
@@ -42,6 +43,7 @@ public struct OpenCodeHookPayload: Equatable, Codable, Sendable {
         case permissionDescription = "permission_description"
         case questionID = "question_id"
         case questionText = "question_text"
+        case questions
         case messageContent = "message_content"
         case model
         case prompt
@@ -63,6 +65,7 @@ public struct OpenCodeHookPayload: Equatable, Codable, Sendable {
         permissionDescription: String? = nil,
         questionID: String? = nil,
         questionText: String? = nil,
+        questions: [OpenCodeQuestionPayload]? = nil,
         messageContent: String? = nil,
         model: String? = nil,
         prompt: String? = nil,
@@ -82,6 +85,7 @@ public struct OpenCodeHookPayload: Equatable, Codable, Sendable {
         self.permissionDescription = permissionDescription
         self.questionID = questionID
         self.questionText = questionText
+        self.questions = questions
         self.messageContent = messageContent
         self.model = model
         self.prompt = prompt
@@ -90,6 +94,100 @@ public struct OpenCodeHookPayload: Equatable, Codable, Sendable {
         self.terminalSessionID = terminalSessionID
         self.terminalTTY = terminalTTY
         self.terminalTitle = terminalTitle
+    }
+}
+
+public struct OpenCodeQuestionOptionPayload: Equatable, Codable, Sendable {
+    public var label: String
+    public var description: String?
+    public var allowsFreeform: Bool?
+
+    private enum CodingKeys: String, CodingKey {
+        case label
+        case description
+        case allowsFreeform = "allows_freeform"
+    }
+
+    public init(
+        label: String,
+        description: String? = nil,
+        allowsFreeform: Bool? = nil
+    ) {
+        self.label = label
+        self.description = description
+        self.allowsFreeform = allowsFreeform
+    }
+}
+
+public struct OpenCodeQuestionPayload: Equatable, Codable, Sendable {
+    public var question: String
+    public var header: String?
+    public var options: [OpenCodeQuestionOptionPayload]
+    public var multiSelect: Bool?
+
+    private enum CodingKeys: String, CodingKey {
+        case question
+        case header
+        case options
+        case multiSelect = "multi_select"
+    }
+
+    public init(
+        question: String,
+        header: String? = nil,
+        options: [OpenCodeQuestionOptionPayload],
+        multiSelect: Bool? = nil
+    ) {
+        self.question = question
+        self.header = header
+        self.options = options
+        self.multiSelect = multiSelect
+    }
+}
+
+public extension OpenCodeHookPayload {
+    var questionPrompt: QuestionPrompt {
+        let items = (questions ?? []).compactMap { question -> QuestionPromptItem? in
+            let options = question.options.compactMap { option -> QuestionOption? in
+                let label = option.label.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !label.isEmpty else {
+                    return nil
+                }
+
+                return QuestionOption(
+                    label: label,
+                    description: option.description ?? "",
+                    allowsFreeform: option.allowsFreeform ?? false
+                )
+            }
+
+            let questionText = question.question.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !questionText.isEmpty, !options.isEmpty else {
+                return nil
+            }
+
+            return QuestionPromptItem(
+                question: questionText,
+                header: question.header ?? "Question",
+                options: options,
+                multiSelect: question.multiSelect ?? false
+            )
+        }
+
+        if !items.isEmpty {
+            let title: String
+            if items.count == 1, let first = items.first {
+                title = first.question
+            } else {
+                title = "OpenCode has \(items.count) questions for you."
+            }
+            return QuestionPrompt(title: title, questions: items)
+        }
+
+        return QuestionPrompt(
+            title: questionText ?? "OpenCode has a question for you.",
+            options: []
+        )
     }
 }
 

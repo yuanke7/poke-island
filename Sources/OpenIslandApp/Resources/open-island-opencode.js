@@ -129,6 +129,45 @@ function makePayload(hookEventName, sessionID, cwd, extra = {}) {
   };
 }
 
+function normalizeQuestionOption(option) {
+  if (typeof option === "string") {
+    return { label: option };
+  }
+  if (!option || typeof option !== "object") {
+    return null;
+  }
+
+  const label = option.label || option.text || option.value || option.name;
+  if (!label) return null;
+
+  return {
+    label: String(label),
+    description: option.description || option.hint || option.detail || "",
+    allows_freeform: Boolean(option.allowsFreeform || option.allows_freeform),
+  };
+}
+
+function normalizeQuestion(question, index) {
+  if (!question || typeof question !== "object") {
+    return null;
+  }
+
+  const questionText = question.question || question.title || question.prompt;
+  if (!questionText) return null;
+
+  const options = Array.isArray(question.options)
+    ? question.options.map(normalizeQuestionOption).filter(Boolean)
+    : [];
+  if (options.length === 0) return null;
+
+  return {
+    question: String(questionText),
+    header: question.header || question.label || `Question ${index + 1}`,
+    options,
+    multi_select: Boolean(question.multiSelect || question.multi_select),
+  };
+}
+
 export default async ({ client, serverUrl }) => {
   const serverPort = serverUrl ? parseInt(serverUrl.port) || 4096 : 4096;
   const internalFetch = client?._client?.getConfig?.()?.fetch || null;
@@ -256,9 +295,13 @@ export default async ({ client, serverUrl }) => {
 
     // question.asked
     if (t === "question.asked" && p.id && p.sessionID) {
+      const questions = Array.isArray(p.questions)
+        ? p.questions.map(normalizeQuestion).filter(Boolean)
+        : [];
       return makePayload("QuestionAsked", p.sessionID, sessionCwd.get(p.sessionID), {
         question_id: p.id,
         question_text: (p.questions || []).map(q => q.question).join("; ") || "OpenCode has a question",
+        questions,
         _opencode_request_id: p.id,
       });
     }
