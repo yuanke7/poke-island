@@ -27,7 +27,6 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", from: "2.4.1"),
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.0"),
     ],
     targets: [
@@ -46,7 +45,6 @@ let package = Package(
             name: "OpenIslandApp",
             dependencies: [
                 "OpenIslandCore",
-                .product(name: "MarkdownUI", package: "swift-markdown-ui"),
                 .product(name: "Sparkle", package: "Sparkle"),
             ],
             resources: [

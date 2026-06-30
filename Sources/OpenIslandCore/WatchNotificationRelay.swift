@@ -1,5 +1,5 @@
 import Foundation
-import os
+@preconcurrency import os
 
 /// Monitors AppModel state changes and relays relevant events to the WatchHTTPEndpoint as SSE pushes.
 /// Also handles resolution callbacks from the Watch/iPhone back to the bridge.

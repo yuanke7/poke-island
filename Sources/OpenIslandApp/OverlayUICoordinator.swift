@@ -194,12 +194,11 @@ final class OverlayUICoordinator {
     }
 
     func performBootAnimation() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
             guard let self else { return }
-            self.notchOpen(reason: .boot, surface: .sessionList())
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-                guard self?.notchOpenReason == .boot else { return }
-                self?.notchClose()
+            self.overlayPanelController.performBootDance(preferredScreenID: self.preferredOverlayScreenID) { [weak self] in
+                self?.ensureOverlayPanel()
+                self?.notchPop()
             }
         }
     }

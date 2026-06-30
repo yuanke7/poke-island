@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import UniformTypeIdentifiers
 import OpenIslandCore
 
 // MARK: - Settings tabs
@@ -77,7 +78,7 @@ enum SettingsSection: String, CaseIterable {
         switch self {
         case .system:   lang.t("settings.section.system")
         case .advanced: lang.t("settings.section.advanced")
-        case .app:      "Open Island"
+        case .app:      "Poke Island"
         }
     }
 
@@ -88,6 +89,7 @@ enum SettingsSection: String, CaseIterable {
 
 // MARK: - Root settings view
 
+@MainActor
 struct SettingsView: View {
     var model: AppModel
     @State private var selectedTab: SettingsTab = .general
@@ -169,6 +171,7 @@ struct SettingsView: View {
 
 // MARK: - General
 
+@MainActor
 struct GeneralSettingsPane: View {
     var model: AppModel
 
@@ -233,6 +236,7 @@ struct GeneralSettingsPane: View {
 
 // MARK: - Display
 
+@MainActor
 struct DisplaySettingsPane: View {
     var model: AppModel
 
@@ -266,8 +270,14 @@ struct DisplaySettingsPane: View {
 
 // MARK: - Sound
 
+@MainActor
 struct SoundSettingsPane: View {
     var model: AppModel
+    @State private var eventSoundPaths = Dictionary(
+        uniqueKeysWithValues: OpenIslandEventSound.allCases.map {
+            ($0, NotificationSoundService.eventSoundPath(for: $0))
+        }
+    )
 
     private var lang: LanguageManager { model.lang }
 
@@ -305,14 +315,68 @@ struct SoundSettingsPane: View {
                     .buttonStyle(.plain)
                 }
             }
+
+            Section("Event sounds") {
+                ForEach(OpenIslandEventSound.allCases) { event in
+                    eventSoundRow(event)
+                }
+            }
         }
         .formStyle(.grouped)
         .navigationTitle(lang.t("settings.tab.sound"))
+    }
+
+    @ViewBuilder
+    private func eventSoundRow(_ event: OpenIslandEventSound) -> some View {
+        let path = eventSoundPaths[event] ?? NotificationSoundService.eventSoundPath(for: event)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Text(event.title)
+                    .font(.system(size: 13, weight: .semibold))
+                Spacer()
+                Button {
+                    NotificationSoundService.playEvent(event, isMuted: false)
+                } label: {
+                    Image(systemName: "play.fill")
+                }
+                Button {
+                    chooseSoundFile(for: event)
+                } label: {
+                    Image(systemName: "folder.fill")
+                }
+                Button {
+                    NotificationSoundService.resetEventSoundPath(for: event)
+                    eventSoundPaths[event] = NotificationSoundService.eventSoundPath(for: event)
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                }
+            }
+            .buttonStyle(.borderless)
+
+            Text(path)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(FileManager.default.fileExists(atPath: path) ? Color.secondary : Color.red)
+                .lineLimit(2)
+                .textSelection(.enabled)
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func chooseSoundFile(for event: OpenIslandEventSound) {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.audio]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        NotificationSoundService.setEventSoundPath(url.path, for: event)
+        eventSoundPaths[event] = url.path
     }
 }
 
 // MARK: - About
 
+@MainActor
 struct AboutSettingsPane: View {
     var model: AppModel
 
@@ -405,6 +469,7 @@ struct AboutSettingsPane: View {
 
 // MARK: - Setup
 
+@MainActor
 struct SetupSettingsPane: View {
     var model: AppModel
 
@@ -963,6 +1028,7 @@ struct SetupSettingsPane: View {
 
 // MARK: - Watch
 
+@MainActor
 struct WatchSettingsPane: View {
     var model: AppModel
 
@@ -1042,6 +1108,7 @@ struct WatchSettingsPane: View {
 
 // MARK: - Placeholder
 
+@MainActor
 struct PlaceholderSettingsPane: View {
     var model: AppModel
     let titleKey: String
@@ -1063,6 +1130,7 @@ struct PlaceholderSettingsPane: View {
 
 // MARK: - Remote Connection
 
+@MainActor
 struct RemoteConnectionSection: View {
     var model: AppModel
 
@@ -1223,6 +1291,7 @@ struct RemoteConnectionSection: View {
 
 // MARK: - Update Banner
 
+@MainActor
 struct UpdateBanner: View {
     let version: String
     let lang: LanguageManager

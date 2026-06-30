@@ -690,6 +690,8 @@ struct ActiveAgentProcessDiscovery {
 
         return firstToken == "claude"
             || firstToken.hasSuffix("/claude")
+            || firstToken == "sscops"
+            || firstToken.hasSuffix("/sscops")
     }
 
     private static func commandOutput(executablePath: String, arguments: [String]) -> String? {

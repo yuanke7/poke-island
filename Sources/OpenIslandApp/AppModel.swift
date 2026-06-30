@@ -52,6 +52,7 @@ final class AppModel {
         }
     }
     @ObservationIgnored private var _cachedSessionBuckets: (primary: [AgentSession], overflow: [AgentSession])?
+    @ObservationIgnored private var lastThinkingSoundAtBySessionID: [String: Date] = [:]
 
     /// Monotonic ticket assigned the first time a session ID shows up in the
     /// closed-island's right-slot surfaced set. Drives the grid's display
@@ -379,6 +380,9 @@ final class AppModel {
 
     @ObservationIgnored
     var openSettingsWindow: (() -> Void)?
+    @ObservationIgnored
+    private var settingsWindow: NSWindow?
+    var shouldShowSettingsWindow = false
 
     @ObservationIgnored
     private var hasFinishedInit = false
@@ -1238,20 +1242,20 @@ final class AppModel {
     }
 
     func showSettings() {
-        if let opener = openSettingsWindow {
-            opener()
-        } else {
-            // First-launch fallback: SwiftUI's `openWindow` closure is registered
-            // by `SettingsWindowContent.onAppear`, which doesn't fire until the
-            // settings window renders the first time. Send the standard
-            // `showSettingsWindow:` responder action (macOS 13+) so it fires
-            // the `CommandGroup(.appSettings)` button that opens the window.
-            NSApp.sendAction(NSSelectorFromString("showSettingsWindow:"), to: nil, from: nil)
+        shouldShowSettingsWindow = true
+        if settingsWindow == nil {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 780, height: 560),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable],
+                backing: .buffered,
+                defer: false
+            )
+            window.title = lang.t("window.settings")
+            window.contentView = NSHostingView(rootView: SettingsView(model: self))
+            window.center()
+            settingsWindow = window
         }
-        if let window = NSApp.windows.first(where: { $0.title == "Open Island Settings" }) {
-            window.orderFrontRegardless()
-            window.makeKey()
-        }
+        settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
@@ -1286,6 +1290,7 @@ final class AppModel {
             return
         }
 
+        playThinkingSoundIfNeeded(for: session.id)
         send(
             .answerQuestion(sessionID: session.id, response: QuestionPromptResponse(answer: answer)),
             userMessage: "Sending answer \"\(answer)\" for \(session.title)."
@@ -1408,6 +1413,7 @@ final class AppModel {
         state.answerQuestion(sessionID: session.id, response: answer)
         synchronizeSelection()
         refreshOverlayPlacementIfVisible()
+        playThinkingSoundIfNeeded(for: session.id)
 
         send(
             .answerQuestion(sessionID: session.id, response: answer),
@@ -1419,6 +1425,7 @@ final class AppModel {
         dismissNotificationSurfaceIfPresent(for: session.id)
         synchronizeSelection()
         refreshOverlayPlacementIfVisible()
+        playThinkingSoundIfNeeded(for: session.id)
 
         lastActionMessage = "Sending reply to \(session.title)…"
 
@@ -1427,7 +1434,11 @@ final class AppModel {
                 TerminalTextSender.send(text, to: session)
             }.value
 
-            self?.lastActionMessage = success
+            guard let self else { return }
+            if !success {
+                NotificationSoundService.playEvent(.failed, isMuted: isSoundMuted)
+            }
+            lastActionMessage = success
                 ? "Sent reply to \(session.title)."
                 : "Failed to send reply to \(session.title)."
         }
@@ -1445,6 +1456,7 @@ final class AppModel {
             do {
                 try await self.bridgeClient.send(command)
             } catch {
+                NotificationSoundService.playEvent(.failed, isMuted: self.isSoundMuted)
                 self.lastActionMessage = "Failed to send bridge command: \(error.localizedDescription)"
             }
         }
@@ -1463,6 +1475,15 @@ final class AppModel {
         updateLastActionMessage: Bool = true,
         ingress: TrackedEventIngress = .bridge
     ) {
+        let previousPhase: SessionPhase? = {
+            switch event {
+            case let .sessionStarted(payload): return state.session(id: payload.sessionID)?.phase
+            case let .activityUpdated(payload): return state.session(id: payload.sessionID)?.phase
+            case let .sessionCompleted(payload): return state.session(id: payload.sessionID)?.phase
+            default: return nil
+            }
+        }()
+
         // Snapshot whether this session was already completed before applying
         // the event. Used to suppress duplicate/stale completion notifications
         // (e.g. rollout watcher re-discovering an old completion on startup,
@@ -1484,6 +1505,7 @@ final class AppModel {
         }
 
         state.apply(event)
+        playEventSoundIfNeeded(for: event, previousPhase: previousPhase, wasAlreadyCompleted: wasAlreadyCompleted)
         reconcileIslandSurfaceAfterStateChange()
         if ingress == .bridge {
             monitoring.markSessionAttached(for: event)
@@ -1530,6 +1552,46 @@ final class AppModel {
                 ingress: ingress
             )
         }
+    }
+
+    private func playEventSoundIfNeeded(
+        for event: AgentEvent,
+        previousPhase: SessionPhase?,
+        wasAlreadyCompleted: Bool
+    ) {
+        switch event {
+        case let .sessionStarted(payload) where payload.initialPhase == .running:
+            playThinkingSoundIfNeeded(for: payload.sessionID)
+        case let .activityUpdated(payload):
+            if payload.phase == .running, previousPhase != .running {
+                playThinkingSoundIfNeeded(for: payload.sessionID)
+            } else if payload.phase == .completed, eventSummaryLooksFailed(payload.summary) {
+                NotificationSoundService.playEvent(.failed, isMuted: isSoundMuted)
+            }
+        case let .sessionCompleted(payload):
+            guard !wasAlreadyCompleted else { return }
+            let sound: OpenIslandEventSound = (payload.isInterrupt == true || eventSummaryLooksFailed(payload.summary))
+                ? .failed
+                : .completed
+            NotificationSoundService.playEvent(sound, isMuted: isSoundMuted)
+        default:
+            break
+        }
+    }
+
+    private func playThinkingSoundIfNeeded(for sessionID: String) {
+        let now = Date()
+        if let last = lastThinkingSoundAtBySessionID[sessionID],
+           now.timeIntervalSince(last) < 1 {
+            return
+        }
+        lastThinkingSoundAtBySessionID[sessionID] = now
+        NotificationSoundService.playEvent(.thinking, isMuted: isSoundMuted)
+    }
+
+    private func eventSummaryLooksFailed(_ summary: String) -> Bool {
+        let text = summary.lowercased()
+        return ["fail", "error", "denied", "exception", "crash", "interrupt"].contains { text.contains($0) }
     }
 
     private func scheduleNotificationSurfacePresentationIfNeeded(

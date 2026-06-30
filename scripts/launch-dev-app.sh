@@ -79,8 +79,10 @@ cat > "$plist_path" <<EOF
     <string>6.0</string>
     <key>CFBundleIconFile</key>
     <string>OpenIsland</string>
+    <key>CFBundleDisplayName</key>
+    <string>Poke Island</string>
     <key>CFBundleName</key>
-    <string>Open Island Dev</string>
+    <string>Poke Island</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -90,7 +92,7 @@ cat > "$plist_path" <<EOF
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
     <key>NSAppleEventsUsageDescription</key>
-    <string>Open Island needs automation access to focus Terminal and iTerm sessions for jump-back.</string>
+    <string>Poke Island needs automation access to focus Terminal and iTerm sessions for jump-back.</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSPrincipalClass</key>

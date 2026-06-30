@@ -1,6 +1,6 @@
 import Foundation
 import Network
-import os
+@preconcurrency import os
 
 // MARK: - SSE Event Types
 

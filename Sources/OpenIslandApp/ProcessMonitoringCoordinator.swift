@@ -990,6 +990,10 @@ final class ProcessMonitoringCoordinator {
             return .claudeCode
         }
 
+        if normalized.contains("sscops") {
+            return .claudeCode
+        }
+
         return nil
     }
 

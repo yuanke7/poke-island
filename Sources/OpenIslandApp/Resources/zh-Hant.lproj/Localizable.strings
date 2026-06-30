@@ -1,6 +1,6 @@
 /* Common */
-"app.name" = "Open Island";
-"app.name.oss" = "Open Island OSS";
+"app.name" = "Poke Island";
+"app.name.oss" = "Poke Island";
 "app.description" = "macOS AI 程式代理伴侶";
 
 /* Settings - Tab Labels */
@@ -68,7 +68,7 @@
 "settings.appearance.sessionListPart.title" = "會話列表";
 "settings.appearance.sessionPreview" = "預覽";
 "settings.appearance.profile.title" = "顯示器配置";
-"settings.appearance.profile.note" = "選擇正在配置的螢幕類型。Open Island 會在浮窗切換螢幕時自動套用對應配置。";
+"settings.appearance.profile.note" = "選擇正在配置的螢幕類型。Poke Island 會在浮窗切換螢幕時自動套用對應配置。";
 "settings.appearance.profile.external.title" = "外接螢幕";
 "settings.appearance.profile.external.note" = "沒有 MacBook 凹槽外圓角的頂部列布局。";
 "settings.appearance.profile.macbook.title" = "MacBook 凹槽螢幕";
@@ -223,4 +223,4 @@
 "completion.replyPlaceholder" = "回覆 %@…";
 
 /* Window Titles */
-"window.settings" = "Open Island 設定";
+"window.settings" = "Poke Island 設定";

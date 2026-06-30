@@ -185,6 +185,58 @@ final class OverlayPanelController {
         }
     }
 
+    func performBootDance(preferredScreenID: String?, completion: @escaping @MainActor () -> Void) {
+        guard let screen = resolveTargetScreen(preferredScreenID: preferredScreenID) ?? NSScreen.main else {
+            completion()
+            return
+        }
+
+        let size = CGSize(width: 208, height: 208)
+        let startFrame = NSRect(
+            x: screen.frame.midX - size.width / 2,
+            y: screen.frame.midY - size.height / 2,
+            width: size.width,
+            height: size.height
+        )
+        let targetFrame = bootDanceTargetFrame(on: screen, size: CGSize(width: 52, height: 52))
+        let dancePanel = NotchPanel(
+            contentRect: startFrame,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+
+        dancePanel.level = .statusBar
+        dancePanel.backgroundColor = .clear
+        dancePanel.isOpaque = false
+        dancePanel.hasShadow = false
+        dancePanel.ignoresMouseEvents = true
+        dancePanel.collectionBehavior = [.fullScreenAuxiliary, .canJoinAllSpaces, .ignoresCycle, .stationary]
+        dancePanel.contentView = NSHostingView(rootView: PixelMonsterBallDanceView())
+        dancePanel.orderFrontRegardless()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.45) {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.48
+                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                dancePanel.animator().setFrame(targetFrame, display: true)
+                dancePanel.animator().alphaValue = 0.35
+            } completionHandler: {
+                DispatchQueue.main.async {
+                    dancePanel.orderOut(nil)
+                    completion()
+                }
+            }
+        }
+    }
+
+    private func bootDanceTargetFrame(on screen: NSScreen, size: CGSize) -> NSRect {
+        let notchSize = screen.notchSize
+        let x = screen.frame.midX - size.width / 2
+        let y = screen.frame.maxY - max(notchSize.height, 32) - size.height * 0.28
+        return NSRect(x: x, y: y, width: size.width, height: size.height)
+    }
+
     private func computeNotchRect(screen: NSScreen?) {
         guard let screen else {
             notchRect = .zero
@@ -777,6 +829,97 @@ final class NotchHostingView<Content: View>: NSHostingView<Content> {
         }
         for child in view.subviews {
             disableInternalScrollers(in: child)
+        }
+    }
+}
+
+private struct PixelMonsterBallDanceView: View {
+    @State private var hopping = false
+    @State private var spinning = false
+
+    private let rows = [
+        "....KKKKKKKK....",
+        "..KKRRRRRRRRKK..",
+        ".KRRRRRRRRRRRRK.",
+        ".KRRWWRRRRWWRRK.",
+        "KRRWWWWRRWWWWRRK",
+        "KRRRRRRRRRRRRRRK",
+        "KKKKKKKKKKKKKKKK",
+        "KWWWWWWKKWWWWWWK",
+        "KWWWWWKSSKWWWWWK",
+        "KWWWWWKSSKWWWWWK",
+        "KWWWWWWKKWWWWWWK",
+        ".KWWWWWWWWWWWWK.",
+        ".KWWWWWWWWWWWWK.",
+        "..KKWWWWWWWWKK..",
+        "....KKKKKKKK....",
+        "................",
+    ]
+
+    var body: some View {
+        GeometryReader { proxy in
+            let side = min(proxy.size.width, proxy.size.height)
+            bootDanceImage
+                .frame(width: side * 0.79, height: side * 0.79)
+                .scaleEffect(hopping ? 1.08 : 0.94)
+                .rotationEffect(.degrees(spinning ? 11 : -11))
+                .offset(y: hopping ? -side * 0.17 : side * 0.10)
+                .shadow(color: .black.opacity(0.38), radius: side * 0.10, y: side * 0.08)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 0.22).repeatCount(6, autoreverses: true)) {
+                        hopping = true
+                    }
+                    withAnimation(.easeInOut(duration: 0.18).repeatCount(8, autoreverses: true)) {
+                        spinning = true
+                    }
+                }
+        }
+    }
+
+    @ViewBuilder
+    private var bootDanceImage: some View {
+        if let url = Bundle.appResources.url(forResource: "pixel-monster-ball", withExtension: "png"),
+           let image = NSImage(contentsOf: url) {
+            Image(nsImage: image)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+        } else {
+            PixelMonsterBall(rows: rows)
+        }
+    }
+}
+
+private struct PixelMonsterBall: View {
+    let rows: [String]
+
+    var body: some View {
+        Canvas { context, size in
+            let cell = min(size.width, size.height) / CGFloat(rows.count)
+            for (y, row) in rows.enumerated() {
+                for (x, code) in row.enumerated() {
+                    guard let color = color(for: code) else { continue }
+                    let rect = CGRect(
+                        x: CGFloat(x) * cell,
+                        y: CGFloat(y) * cell,
+                        width: ceil(cell),
+                        height: ceil(cell)
+                    )
+                    context.fill(Path(rect), with: .color(color))
+                }
+            }
+        }
+        .drawingGroup(opaque: false, colorMode: .linear)
+    }
+
+    private func color(for code: Character) -> Color? {
+        switch code {
+        case "K": .black
+        case "R": Color(red: 0.9, green: 0.08, blue: 0.08)
+        case "W": Color(red: 0.95, green: 0.95, blue: 0.9)
+        case "S": Color(red: 0.72, green: 0.72, blue: 0.68)
+        default: nil
         }
     }
 }

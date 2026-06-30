@@ -1,6 +1,6 @@
 /* Common */
-"app.name" = "Open Island";
-"app.name.oss" = "Open Island OSS";
+"app.name" = "Poke Island";
+"app.name.oss" = "Poke Island";
 "app.description" = "macOS companion for AI coding agents";
 
 /* Settings - Tab Labels */
@@ -68,7 +68,7 @@
 "settings.appearance.sessionListPart.title" = "Session list";
 "settings.appearance.sessionPreview" = "Preview";
 "settings.appearance.profile.title" = "Display profile";
-"settings.appearance.profile.note" = "Choose which screen type you are configuring. Open Island applies the matching profile automatically when the overlay moves.";
+"settings.appearance.profile.note" = "Choose which screen type you are configuring. Poke Island applies the matching profile automatically when the overlay moves.";
 "settings.appearance.profile.external.title" = "External display";
 "settings.appearance.profile.external.note" = "Top-bar fallback without the MacBook notch corners.";
 "settings.appearance.profile.macbook.title" = "MacBook notch";
@@ -224,4 +224,4 @@
 "completion.replyPlaceholder" = "Reply to %@…";
 
 /* Window Titles */
-"window.settings" = "Open Island Settings";
+"window.settings" = "Poke Island Settings";

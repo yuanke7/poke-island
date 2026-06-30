@@ -9,6 +9,7 @@ import OpenIslandCore
 ///
 /// Everything else (idle behavior, per-tool agent colors, spinner, custom
 /// avatars) was cut in the v6 redesign round.
+@MainActor
 struct AppearanceSettingsPane: View {
     var model: AppModel
     @State private var previewMode: UnifiedBars.Mode = .idle
@@ -831,6 +832,7 @@ private struct AppearanceSessionPreviewItem: Identifiable {
     let updatedRank: Int
 }
 
+@MainActor
 private struct SettingsPreviewStage<Content: View>: View {
     var contentTopPadding: CGFloat = 20
     var contentBottomPadding: CGFloat = 24
@@ -862,6 +864,7 @@ private struct SettingsPreviewStage<Content: View>: View {
     }
 }
 
+@MainActor
 private struct SettingsPreviewWallpaper: View {
     var body: some View {
         ZStack {
@@ -887,6 +890,7 @@ private struct SettingsPreviewWallpaper: View {
     }
 }
 
+@MainActor
 private struct SessionListPanelPreview: View {
     let sections: [AppearanceSessionPreviewSection]
     let showsSections: Bool
@@ -1123,6 +1127,7 @@ private struct SessionListPanelPreview: View {
     }
 }
 
+@MainActor
 private struct SessionListLivePreviewRow: View {
     let item: AppearanceSessionPreviewItem
     let indicator: IslandSessionStateIndicator
@@ -1349,6 +1354,7 @@ private extension AppearanceSessionPreviewItem.Phase {
     }
 }
 
+@MainActor
 private struct CountBadgePreview: View {
     let count: Int
     var body: some View {
@@ -1358,6 +1364,7 @@ private struct CountBadgePreview: View {
     }
 }
 
+@MainActor
 private struct AgentsMiniGridPreview: View {
     var body: some View {
         let claude = Color(hex: AgentTool.claudeCode.brandColorHex) ?? .white
@@ -1371,6 +1378,7 @@ private struct AgentsMiniGridPreview: View {
     }
 }
 
+@MainActor
 private struct StateIndicatorPreview: View {
     let option: IslandSessionStateIndicator
 
@@ -1414,6 +1422,7 @@ private struct StateIndicatorPreview: View {
     }
 }
 
+@MainActor
 private struct UsageDisplayPreview: View {
     let option: IslandUsageDisplay
 
@@ -1449,6 +1458,7 @@ private struct UsageDisplayPreview: View {
     }
 }
 
+@MainActor
 private struct SessionGroupPreview: View {
     let option: IslandSessionGroup
 
@@ -1496,6 +1506,7 @@ private struct SessionGroupPreview: View {
     }
 }
 
+@MainActor
 private struct SessionSortPreview: View {
     let option: IslandSessionSort
 

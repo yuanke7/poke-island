@@ -1,5 +1,4 @@
 import SwiftUI
-@preconcurrency import MarkdownUI
 import OpenIslandCore
 
 private struct NotificationContentHeightKey: PreferenceKey {
@@ -73,7 +72,7 @@ extension AgentSession {
 
 // MARK: - Animations
 
-private let openAnimation = Animation.spring(response: 0.42, dampingFraction: 0.8, blendDuration: 0)
+private let openAnimation = Animation.smooth(duration: 0.24)
 private let closeAnimation = Animation.smooth(duration: 0.3)
 private let popAnimation = Animation.spring(response: 0.3, dampingFraction: 0.5)
 private let openedSurfaceUnmountDelay: TimeInterval = 0.36
@@ -92,6 +91,7 @@ private struct ConditionalDrawingGroup: ViewModifier {
 
 // MARK: - Main island view
 
+@MainActor
 struct IslandPanelView: View {
     private static let headerControlButtonSize: CGFloat = 22
     private static let headerControlSpacing: CGFloat = 8
@@ -108,6 +108,7 @@ struct IslandPanelView: View {
     @State private var showingQuitConfirmation = false
     @State private var keepsOpenedSurfaceMounted = false
     @State private var openedSurfaceMountGeneration: UInt64 = 0
+    @State private var openedContentVisible = false
 
     private var isOpened: Bool {
         model.notchStatus == .opened
@@ -115,10 +116,6 @@ struct IslandPanelView: View {
 
     private var usesOpenedVisualState: Bool {
         isOpened
-    }
-
-    private var shouldRenderOpenedSurface: Bool {
-        usesOpenedVisualState || keepsOpenedSurfaceMounted
     }
 
     private var isPopping: Bool {
@@ -192,6 +189,7 @@ struct IslandPanelView: View {
         }
         .onChange(of: model.notchStatus) { _, status in
             syncOpenedSurfaceMount(with: status)
+            syncOpenedContentVisibility(with: status)
         }
     }
 
@@ -210,14 +208,15 @@ struct IslandPanelView: View {
 
         VStack(spacing: 0) {
             ZStack(alignment: .top) {
-                if shouldRenderOpenedSurface {
-                    openedSurface(width: openedWidth, height: openedHeight)
-                        .opacity(usesOpenedVisualState ? 1 : 0)
-                        .allowsHitTesting(usesOpenedVisualState)
-                }
+                openedSurface(width: openedWidth, height: openedHeight)
+                    .opacity(usesOpenedVisualState ? 1 : 0)
+                    .scaleEffect(usesOpenedVisualState ? 1 : 0.14, anchor: .top)
+                    .offset(y: usesOpenedVisualState ? 0 : -openedHeight * 0.42)
+                    .allowsHitTesting(usesOpenedVisualState)
 
                 v6ClosedSurface()
-                    .opacity(usesOpenedVisualState ? 0 : 1)
+                    .opacity(usesOpenedVisualState ? 0.08 : 1)
+                    .scaleEffect(usesOpenedVisualState ? 1.08 : 1, anchor: .top)
                     .allowsHitTesting(!usesOpenedVisualState)
             }
             .frame(maxWidth: .infinity, alignment: .top)
@@ -228,7 +227,7 @@ struct IslandPanelView: View {
         .animation(notchTransitionAnimation, value: model.notchStatus)
         .contentShape(Rectangle())
         .onHover { hovering in
-            withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
+            withAnimation(.easeOut(duration: 0.12)) {
                 isHovering = hovering
             }
         }
@@ -259,6 +258,20 @@ struct IslandPanelView: View {
                 }
                 keepsOpenedSurfaceMounted = false
             }
+        }
+    }
+
+    private func syncOpenedContentVisibility(with status: NotchStatus) {
+        if status == .opened {
+            openedContentVisible = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+                guard model.notchStatus == .opened else { return }
+                withAnimation(.easeOut(duration: 0.16)) {
+                    openedContentVisible = true
+                }
+            }
+        } else {
+            openedContentVisible = false
         }
     }
 
@@ -303,23 +316,26 @@ struct IslandPanelView: View {
                 .fill(V6Palette.ink)
                 .frame(width: surfaceWidth, height: surfaceHeight)
 
-            VStack(spacing: 0) {
-                openedHeaderContent
-                    .frame(height: closedNotchHeight)
+            if openedContentVisible {
+                VStack(spacing: 0) {
+                    openedHeaderContent
+                        .frame(height: closedNotchHeight)
 
-                openedContent
-                    .frame(width: openedWidth)
-                    .frame(maxHeight: max(0, openedHeight - closedNotchHeight), alignment: .top)
-                    .clipped()
+                    openedContent
+                        .frame(width: openedWidth)
+                        .frame(maxHeight: max(0, openedHeight - closedNotchHeight), alignment: .top)
+                        .clipped()
+                }
+                .transition(.opacity)
+                .frame(width: openedWidth, height: openedHeight, alignment: .top)
+                .padding(.horizontal, horizontalInset)
+                .padding(.bottom, bottomInset)
+                .clipShape(surfaceShape)
             }
-            .frame(width: openedWidth, height: openedHeight, alignment: .top)
-            .padding(.horizontal, horizontalInset)
-            .padding(.bottom, bottomInset)
-            .clipShape(surfaceShape)
-            .overlay {
-                surfaceShape
-                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
-            }
+
+            surfaceShape
+                .stroke(Color.white.opacity(0.07), lineWidth: 1)
+                .frame(width: surfaceWidth, height: surfaceHeight)
         }
         .frame(width: surfaceWidth, height: surfaceHeight, alignment: .top)
     }
@@ -1706,8 +1722,10 @@ private struct IslandSessionRow: View {
         VStack(alignment: .leading, spacing: 0) {
             if !completionMessageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 AutoHeightScrollView(maxHeight: 160) {
-                    Markdown(completionMessageText)
-                        .markdownTheme(.completionCard)
+                    Text(completionMessageText)
+                        .font(.system(size: 13.5, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.88))
+                        .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 9)
@@ -2615,104 +2633,7 @@ private struct IslandActionButtonStyle: ButtonStyle {
 
 // MARK: - Menu bar content (unchanged)
 
-// MARK: - MarkdownUI Theme
 
-extension MarkdownUI.Theme {
-    @MainActor static let completionCard = Theme()
-        .text {
-            ForegroundColor(.white.opacity(0.88))
-            FontSize(13.5)
-            FontWeight(.medium)
-        }
-        .link {
-            ForegroundColor(.blue)
-        }
-        .strong {
-            FontWeight(.bold)
-        }
-        .code {
-            FontFamilyVariant(.monospaced)
-            FontSize(12.5)
-            ForegroundColor(.white.opacity(0.88))
-            BackgroundColor(.white.opacity(0.08))
-        }
-        .codeBlock { configuration in
-            configuration.label
-                .markdownTextStyle {
-                    FontFamilyVariant(.monospaced)
-                    FontSize(12.5)
-                    ForegroundColor(.white.opacity(0.88))
-                }
-                .padding(10)
-                .background(Color.white.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-        }
-        .heading1 { configuration in
-            configuration.label
-                .markdownTextStyle {
-                    FontSize(16)
-                    FontWeight(.bold)
-                    ForegroundColor(.white.opacity(0.88))
-                }
-                .markdownMargin(top: 8, bottom: 4)
-        }
-        .heading2 { configuration in
-            configuration.label
-                .markdownTextStyle {
-                    FontSize(15)
-                    FontWeight(.bold)
-                    ForegroundColor(.white.opacity(0.88))
-                }
-                .markdownMargin(top: 8, bottom: 4)
-        }
-        .heading3 { configuration in
-            configuration.label
-                .markdownTextStyle {
-                    FontSize(14)
-                    FontWeight(.semibold)
-                    ForegroundColor(.white.opacity(0.88))
-                }
-                .markdownMargin(top: 6, bottom: 2)
-        }
-        .blockquote { configuration in
-            configuration.label
-                .markdownTextStyle {
-                    ForegroundColor(.white.opacity(0.6))
-                    FontSize(13.5)
-                }
-                .padding(.leading, 12)
-                .overlay(alignment: .leading) {
-                    Rectangle()
-                        .fill(Color.white.opacity(0.2))
-                        .frame(width: 3)
-                }
-        }
-        .listItem { configuration in
-            configuration.label
-                .markdownMargin(top: 2, bottom: 2)
-        }
-        .table { configuration in
-            configuration.label
-                .fixedSize(horizontal: false, vertical: true)
-                .markdownTableBorderStyle(.init(.allBorders, color: .white.opacity(0.15), strokeStyle: .init(lineWidth: 1)))
-                .markdownTableBackgroundStyle(
-                    .alternatingRows(Color.white.opacity(0.04), Color.white.opacity(0.08))
-                )
-                .markdownMargin(top: 4, bottom: 8)
-        }
-        .tableCell { configuration in
-            configuration.label
-                .markdownTextStyle {
-                    if configuration.row == 0 {
-                        FontWeight(.semibold)
-                    }
-                }
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 12)
-                .relativeLineSpacing(.em(0.25))
-        }
-}
 
 private struct DismissButton: View {
     let action: () -> Void

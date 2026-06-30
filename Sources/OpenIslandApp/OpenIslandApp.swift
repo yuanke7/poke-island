@@ -10,7 +10,7 @@ final class OpenIslandAppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         ProcessInfo.processInfo.disableAutomaticTermination(
-            "Open Island should remain active while monitoring local agent sessions."
+            "Poke Island should remain active while monitoring local agent sessions."
         )
         ProcessInfo.processInfo.disableSuddenTermination()
         NSApp.setActivationPolicy(model.showDockIcon ? .regular : .accessory)
@@ -18,6 +18,9 @@ final class OpenIslandAppDelegate: NSObject, NSApplicationDelegate {
 
         DispatchQueue.main.async { [self] in
             harnessRuntimeMonitor.recordMilestone("bootstrapStarted")
+            // SwiftUI creates the Settings window before the menu-bar island is ready.
+            // Hide it immediately; users can reopen Settings from the app menu.
+            OpenIslandAppDelegate.hideAllAppWindows()
             model.harnessRuntimeMonitor = harnessRuntimeMonitor
             harnessRuntimeMonitor.recordLog(model.lastActionMessage)
 
@@ -28,6 +31,7 @@ final class OpenIslandAppDelegate: NSObject, NSApplicationDelegate {
                 shouldPerformBootAnimation: harnessLaunchConfiguration.shouldPerformBootAnimation,
                 loadRuntimeState: harnessLaunchConfiguration.scenario == nil
             )
+            NotificationSoundService.playEvent(.startup, isMuted: model.isSoundMuted)
             harnessRuntimeMonitor.recordMilestone("modelStarted")
 
             if let scenario = harnessLaunchConfiguration.scenario {
@@ -36,9 +40,6 @@ final class OpenIslandAppDelegate: NSObject, NSApplicationDelegate {
                     presentOverlay: harnessLaunchConfiguration.presentOverlay
                 )
             }
-
-            // Hide all windows on launch — settings opens on demand only.
-            OpenIslandAppDelegate.hideAllAppWindows()
 
             harnessRuntimeMonitor.recordMilestone("bootstrapCompleted")
 
@@ -75,7 +76,7 @@ final class OpenIslandAppDelegate: NSObject, NSApplicationDelegate {
         false
     }
 
-    private static func hideAllAppWindows() {
+    fileprivate static func hideAllAppWindows() {
         for window in NSApp.windows {
             window.orderOut(nil)
         }
@@ -92,37 +93,23 @@ struct OpenIslandApp: App {
     @NSApplicationDelegateAdaptor(OpenIslandAppDelegate.self)
     private var appDelegate
 
-    @Environment(\.openWindow) private var openWindow
+    @MainActor
+    init() {}
 
     var body: some Scene {
-        Window("Open Island Settings", id: "settings") {
+        Settings {
             SettingsWindowContent(model: appDelegate.model)
-        }
-        .windowResizability(.contentMinSize)
-        .commands {
-            CommandGroup(replacing: .appSettings) {
-                Button("Settings…") {
-                    openWindow(id: "settings")
-                    appDelegate.model.showSettings()
-                }
-                .keyboardShortcut(",", modifiers: .command)
-            }
         }
     }
 }
 
-/// Refreshes the `openWindow` registration each time the settings
-/// window opens, keeping the closure current after window recreation.
 private struct SettingsWindowContent: View {
     var model: AppModel
-    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         SettingsView(model: model)
             .onAppear {
-                model.openSettingsWindow = { [openWindow] in
-                    openWindow(id: "settings")
-                }
+                model.shouldShowSettingsWindow = true
             }
     }
 }

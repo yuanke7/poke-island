@@ -96,6 +96,39 @@ struct ActiveAgentProcessDiscoveryTests {
     }
 
     @Test
+    func discoverSSCopsAsClaudeCompatibleProcess() {
+        let discovery = ActiveAgentProcessDiscovery { executablePath, arguments in
+            if executablePath == "/bin/ps" {
+                return """
+                  102 301 ttys002 sscops --allow-dangerously-skip-permissions
+                  301 900 ttys002 -/opt/homebrew/bin/fish
+                  900 1 ?? /Applications/Ghostty.app/Contents/MacOS/ghostty
+                """
+            }
+
+            guard executablePath == "/usr/sbin/lsof",
+                  arguments.dropFirst(2).first == "102" else {
+                return nil
+            }
+
+            return """
+            fcwd
+            n/Users/test/Documents/proj/ssc-ops-cc-agent
+            """
+        }
+
+        #expect(discovery.discover() == [
+            .init(
+                tool: .claudeCode,
+                sessionID: nil,
+                workingDirectory: "/Users/test/Documents/proj/ssc-ops-cc-agent",
+                terminalTTY: "/dev/ttys002",
+                terminalApp: "Ghostty"
+            ),
+        ])
+    }
+
+    @Test
     func codexDiscoveryUsesNewestOpenRolloutWhenProcessKeepsOldDescriptors() {
         let discovery = ActiveAgentProcessDiscovery { executablePath, arguments in
             if executablePath == "/bin/ps" {
