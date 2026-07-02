@@ -306,6 +306,12 @@ final class AppModel {
             NotificationSoundService.selectedSoundName = selectedSoundName
         }
     }
+    var soundVolume: Double = NotificationSoundService.defaultVolume {
+        didSet {
+            guard soundVolume != oldValue else { return }
+            NotificationSoundService.volume = soundVolume
+        }
+    }
     var overlayDisplaySelectionID: String {
         get { overlay.overlayDisplaySelectionID }
         set { overlay.overlayDisplaySelectionID = newValue }
@@ -598,6 +604,7 @@ final class AppModel {
         ])
         isSoundMuted = UserDefaults.standard.bool(forKey: Self.soundMutedDefaultsKey)
         selectedSoundName = NotificationSoundService.selectedSoundName
+        soundVolume = NotificationSoundService.volume
         showDockIcon = UserDefaults.standard.bool(forKey: Self.showDockIconDefaultsKey)
         hapticFeedbackEnabled = UserDefaults.standard.bool(forKey: Self.hapticFeedbackEnabledDefaultsKey)
         suppressFrontmostNotifications = UserDefaults.standard.bool(forKey: Self.suppressFrontmostNotificationsDefaultsKey)
@@ -1250,6 +1257,7 @@ final class AppModel {
                 backing: .buffered,
                 defer: false
             )
+            window.isReleasedWhenClosed = false
             window.title = lang.t("window.settings")
             window.contentView = NSHostingView(rootView: SettingsView(model: self))
             window.center()
@@ -1435,9 +1443,6 @@ final class AppModel {
             }.value
 
             guard let self else { return }
-            if !success {
-                NotificationSoundService.playEvent(.failed, isMuted: isSoundMuted)
-            }
             lastActionMessage = success
                 ? "Sent reply to \(session.title)."
                 : "Failed to send reply to \(session.title)."
@@ -1456,7 +1461,6 @@ final class AppModel {
             do {
                 try await self.bridgeClient.send(command)
             } catch {
-                NotificationSoundService.playEvent(.failed, isMuted: self.isSoundMuted)
                 self.lastActionMessage = "Failed to send bridge command: \(error.localizedDescription)"
             }
         }
@@ -1565,15 +1569,12 @@ final class AppModel {
         case let .activityUpdated(payload):
             if payload.phase == .running, previousPhase != .running {
                 playThinkingSoundIfNeeded(for: payload.sessionID)
-            } else if payload.phase == .completed, eventSummaryLooksFailed(payload.summary) {
-                NotificationSoundService.playEvent(.failed, isMuted: isSoundMuted)
+            } else if payload.phase == .completed, previousPhase != .completed {
+                NotificationSoundService.playEvent(.completed, isMuted: isSoundMuted)
             }
-        case let .sessionCompleted(payload):
+        case .sessionCompleted:
             guard !wasAlreadyCompleted else { return }
-            let sound: OpenIslandEventSound = (payload.isInterrupt == true || eventSummaryLooksFailed(payload.summary))
-                ? .failed
-                : .completed
-            NotificationSoundService.playEvent(sound, isMuted: isSoundMuted)
+            NotificationSoundService.playEvent(.completed, isMuted: isSoundMuted)
         default:
             break
         }

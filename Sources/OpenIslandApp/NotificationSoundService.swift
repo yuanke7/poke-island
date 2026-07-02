@@ -4,7 +4,6 @@ enum OpenIslandEventSound: String, CaseIterable, Identifiable {
     case startup
     case thinking
     case completed
-    case failed
 
     var id: String { rawValue }
 
@@ -13,7 +12,6 @@ enum OpenIslandEventSound: String, CaseIterable, Identifiable {
         case .startup: "OpenIsland startup"
         case .thinking: "User message / thinking"
         case .completed: "Model replied"
-        case .failed: "Failure / exception"
         }
     }
 
@@ -25,8 +23,6 @@ enum OpenIslandEventSound: String, CaseIterable, Identifiable {
             "/Users/jarnoyuan/Music/网易云音乐/岩田恭明 - ゲットファンファーレ (アイテム).mp3"
         case .completed:
             "/Users/jarnoyuan/Music/网易云音乐/景山将太 - たいせつな道具を手に入れた!.mp3"
-        case .failed:
-            "/Users/jarnoyuan/Music/网易云音乐/船橋淳,中島正恵,宮脇聡子 - Life Lost.mp3"
         }
     }
 
@@ -40,8 +36,10 @@ enum OpenIslandEventSound: String, CaseIterable, Identifiable {
 struct NotificationSoundService {
     private static let soundsDirectory = "/System/Library/Sounds"
     private static let defaultsKey = "notification.sound.name"
+    private static let volumeDefaultsKey = "notification.sound.volume"
     private static var activeSounds: [String: NSSound] = [:]
     static let defaultSoundName = "Bottle"
+    static let defaultVolume = 1.0
 
     /// Returns the list of available system sound names (without file extension).
     static func availableSounds() -> [String] {
@@ -65,12 +63,25 @@ struct NotificationSoundService {
         }
     }
 
+    static var volume: Double {
+        get {
+            guard UserDefaults.standard.object(forKey: volumeDefaultsKey) != nil else {
+                return defaultVolume
+            }
+            return clampedVolume(UserDefaults.standard.double(forKey: volumeDefaultsKey))
+        }
+        set {
+            UserDefaults.standard.set(clampedVolume(newValue), forKey: volumeDefaultsKey)
+        }
+    }
+
     /// Plays a system sound by name.
     static func play(_ name: String) {
         guard let sound = NSSound(named: NSSound.Name(name)) else {
             return
         }
         sound.stop()
+        sound.volume = Float(volume)
         sound.play()
     }
 
@@ -105,6 +116,11 @@ struct NotificationSoundService {
         activeSounds[key] = sound
         sound.stop()
         sound.currentTime = 0
+        sound.volume = Float(volume)
         sound.play()
+    }
+
+    private static func clampedVolume(_ value: Double) -> Double {
+        min(1, max(0, value))
     }
 }

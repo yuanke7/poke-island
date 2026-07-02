@@ -292,6 +292,17 @@ struct SoundSettingsPane: View {
                     get: { model.isSoundMuted },
                     set: { _ in model.toggleSoundMuted() }
                 ))
+                HStack {
+                    Text(lang.t("settings.sound.volume"))
+                    Slider(value: Binding(
+                        get: { model.soundVolume },
+                        set: { model.soundVolume = $0 }
+                    ), in: 0...1)
+                    Text("\(Int((model.soundVolume * 100).rounded()))%")
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .frame(width: 44, alignment: .trailing)
+                }
             }
 
             Section(lang.t("settings.sound.selectSound")) {

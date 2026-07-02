@@ -124,6 +124,7 @@
 /* Settings - Sound */
 "settings.sound.notifications" = "通知音效";
 "settings.sound.mute" = "靜音";
+"settings.sound.volume" = "音量";
 "settings.sound.selectSound" = "選擇音效";
 
 /* Settings - Setup */
