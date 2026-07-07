@@ -665,6 +665,16 @@ struct AppModelSessionListTests {
     }
 
     @Test
+    func displayRevealGenerationAdvancesWhenTriggered() {
+        let model = AppModel()
+        let initial = model.displayRevealGeneration
+
+        model.triggerDisplayReveal()
+
+        #expect(model.displayRevealGeneration == initial + 1)
+    }
+
+    @Test
     func completionNotificationUsesHoverPointerExitCollapse() {
         let model = AppModel()
         model.isSoundMuted = true

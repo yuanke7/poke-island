@@ -16,6 +16,7 @@ final class OverlayUICoordinator {
 
     var overlayDisplayOptions: [OverlayDisplayOption] = []
     var overlayPlacementDiagnostics: OverlayPlacementDiagnostics?
+    var displayRevealGeneration: UInt64 = 0
 
     var overlayDisplaySelectionID = OverlayDisplayOption.automaticID {
         didSet {
@@ -248,6 +249,10 @@ final class OverlayUICoordinator {
 
     func refreshOverlayPlacementIfVisible() {
         refreshOverlayPlacement()
+    }
+
+    func triggerDisplayReveal() {
+        displayRevealGeneration &+= 1
     }
 
     // MARK: - Pointer tracking

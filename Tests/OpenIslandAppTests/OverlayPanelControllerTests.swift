@@ -97,12 +97,6 @@ struct OverlayPanelControllerTests {
         #expect(OverlayPanelController.displayRevealDuration(openAnimationDuration: 0.38) == 0.38)
     }
 
-    @Test
-    func displayRevealStartsAtClosedIslandHeight() {
-        #expect(OverlayPanelController.displayRevealStartHeight(closedHeight: 34, targetHeight: 220) == 34)
-        #expect(OverlayPanelController.displayRevealStartHeight(closedHeight: 34, targetHeight: 20) == 20)
-    }
-
     // MARK: - islandClosedHeight
 
     @Test

@@ -51,10 +51,6 @@ final class OverlayPanelController {
         openAnimationDuration
     }
 
-    nonisolated static func displayRevealStartHeight(closedHeight: CGFloat, targetHeight: CGFloat) -> CGFloat {
-        max(1, min(closedHeight, targetHeight))
-    }
-
     func availableDisplayOptions() -> [OverlayDisplayOption] {
         OverlayDisplayResolver.availableDisplayOptions()
     }
@@ -172,10 +168,7 @@ final class OverlayPanelController {
         if panel.frame != windowFrame {
             let isDisplayMigration = panel.screen != screen
             if animated && isDisplayMigration {
-                revealPanel(panel, to: windowFrame, on: screen, duration: Self.displayRevealDuration(
-                    openAnimationDuration: model?.islandOpenAnimationDuration
-                        ?? IslandAppearancePreferences().openAnimationDuration
-                ))
+                revealPanel(panel, to: windowFrame, on: screen)
             } else {
                 panel.setFrame(windowFrame, display: true)
             }
@@ -288,35 +281,15 @@ final class OverlayPanelController {
         return screen.localizedName
     }
 
-    private func revealPanel(_ panel: NSPanel, to windowFrame: NSRect, on screen: NSScreen, duration: TimeInterval) {
+    private func revealPanel(_ panel: NSPanel, to windowFrame: NSRect, on screen: NSScreen) {
         let targetDisplayID = screenID(for: screen)
         guard migratingDisplayID != targetDisplayID else { return }
         migratingDisplayID = targetDisplayID
 
-        let startFrame = NSRect(
-            x: windowFrame.minX,
-            y: windowFrame.maxY - Self.displayRevealStartHeight(
-                closedHeight: screen.islandClosedHeight,
-                targetHeight: windowFrame.height
-            ),
-            width: windowFrame.width,
-            height: Self.displayRevealStartHeight(
-                closedHeight: screen.islandClosedHeight,
-                targetHeight: windowFrame.height
-            )
-        )
         panel.alphaValue = 1
-        panel.setFrame(startFrame, display: true)
-
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = duration
-            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            panel.animator().setFrame(windowFrame, display: true)
-        } completionHandler: { [weak self] in
-            Task { @MainActor in
-                self?.migratingDisplayID = nil
-            }
-        }
+        panel.setFrame(windowFrame, display: true)
+        model?.triggerDisplayReveal()
+        migratingDisplayID = nil
     }
 
     private func migrateAutomaticPanelToMouseScreen(_ screenPoint: NSPoint) {

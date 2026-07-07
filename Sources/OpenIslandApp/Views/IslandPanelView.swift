@@ -98,6 +98,7 @@ struct IslandPanelView: View {
     @State private var surfaceExpansionGeneration: UInt64 = 0
     @State private var openedWidthProgress: CGFloat = 0
     @State private var openedHeightProgress: CGFloat = 0
+    @State private var displayRevealProgress: CGFloat = 1
 
     private var isOpened: Bool {
         model.notchStatus == .opened
@@ -182,6 +183,9 @@ struct IslandPanelView: View {
             syncSurfaceExpansion(with: status)
             syncOpenedContentVisibility(with: status)
         }
+        .onChange(of: model.displayRevealGeneration) { _, _ in
+            runDisplayReveal()
+        }
     }
 
     @ViewBuilder
@@ -215,6 +219,8 @@ struct IslandPanelView: View {
         .scaleEffect(usesOpenedVisualState ? 1 : (isHovering ? IslandChromeMetrics.closedHoverScale : 1), anchor: .top)
         .padding(.horizontal, panelShadowHorizontalInset)
         .padding(.bottom, panelShadowBottomInset)
+        .offset(y: -closedNotchHeight * (1 - displayRevealProgress))
+        .clipped()
         .contentShape(Rectangle())
         .onHover { hovering in
             withAnimation(.easeOut(duration: 0.12)) {
@@ -225,6 +231,17 @@ struct IslandPanelView: View {
             if model.notchStatus != .opened {
                 model.notchOpen(reason: .click)
             }
+        }
+    }
+
+    private func runDisplayReveal() {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            displayRevealProgress = 0
+        }
+        withAnimation(.spring(response: model.islandOpenAnimationDuration, dampingFraction: 0.9)) {
+            displayRevealProgress = 1
         }
     }
 

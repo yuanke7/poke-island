@@ -226,6 +226,7 @@ final class AppModel {
         get { overlay.overlayPlacementDiagnostics }
         set { overlay.overlayPlacementDiagnostics = newValue }
     }
+    var displayRevealGeneration: UInt64 { overlay.displayRevealGeneration }
     var showDockIcon: Bool = false {
         didSet {
             guard hasFinishedInit, showDockIcon != oldValue else { return }
@@ -1272,6 +1273,7 @@ final class AppModel {
     func refreshOverlayDisplayConfiguration() { overlay.refreshOverlayDisplayConfiguration() }
     func refreshOverlayPlacement() { overlay.refreshOverlayPlacement() }
     private func refreshOverlayPlacementIfVisible() { overlay.refreshOverlayPlacementIfVisible() }
+    func triggerDisplayReveal() { overlay.triggerDisplayReveal() }
     func notePointerInsideIslandSurface() { overlay.notePointerInsideIslandSurface() }
     func handlePointerExitedIslandSurface() { overlay.handlePointerExitedIslandSurface() }
     private func presentNotificationSurface(_ surface: IslandSurface) { overlay.presentNotificationSurface(surface) }
