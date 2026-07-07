@@ -47,10 +47,6 @@ final class OverlayPanelController {
         reason == .click
     }
 
-    nonisolated static func displayRevealDuration(openAnimationDuration: Double) -> TimeInterval {
-        openAnimationDuration
-    }
-
     func availableDisplayOptions() -> [OverlayDisplayOption] {
         OverlayDisplayResolver.availableDisplayOptions()
     }
