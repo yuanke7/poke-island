@@ -91,6 +91,18 @@ struct OverlayPanelControllerTests {
         #expect(!OverlayPanelController.shouldActivatePanel(for: nil))
     }
 
+    @Test
+    func displayRevealDurationMatchesOpenAnimationDuration() {
+        #expect(OverlayPanelController.displayRevealDuration(openAnimationDuration: 0.24) == 0.24)
+        #expect(OverlayPanelController.displayRevealDuration(openAnimationDuration: 0.38) == 0.38)
+    }
+
+    @Test
+    func displayRevealStartsAtClosedIslandHeight() {
+        #expect(OverlayPanelController.displayRevealStartHeight(closedHeight: 34, targetHeight: 220) == 34)
+        #expect(OverlayPanelController.displayRevealStartHeight(closedHeight: 34, targetHeight: 20) == 20)
+    }
+
     // MARK: - islandClosedHeight
 
     @Test

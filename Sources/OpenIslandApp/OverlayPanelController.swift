@@ -47,6 +47,14 @@ final class OverlayPanelController {
         reason == .click
     }
 
+    nonisolated static func displayRevealDuration(openAnimationDuration: Double) -> TimeInterval {
+        openAnimationDuration
+    }
+
+    nonisolated static func displayRevealStartHeight(closedHeight: CGFloat, targetHeight: CGFloat) -> CGFloat {
+        max(1, min(closedHeight, targetHeight))
+    }
+
     func availableDisplayOptions() -> [OverlayDisplayOption] {
         OverlayDisplayResolver.availableDisplayOptions()
     }
@@ -164,7 +172,10 @@ final class OverlayPanelController {
         if panel.frame != windowFrame {
             let isDisplayMigration = panel.screen != screen
             if animated && isDisplayMigration {
-                revealPanel(panel, to: windowFrame, on: screen)
+                revealPanel(panel, to: windowFrame, on: screen, duration: Self.displayRevealDuration(
+                    openAnimationDuration: model?.islandOpenAnimationDuration
+                        ?? IslandAppearancePreferences().openAnimationDuration
+                ))
             } else {
                 panel.setFrame(windowFrame, display: true)
             }
@@ -277,22 +288,28 @@ final class OverlayPanelController {
         return screen.localizedName
     }
 
-    private func revealPanel(_ panel: NSPanel, to windowFrame: NSRect, on screen: NSScreen) {
+    private func revealPanel(_ panel: NSPanel, to windowFrame: NSRect, on screen: NSScreen, duration: TimeInterval) {
         let targetDisplayID = screenID(for: screen)
         guard migratingDisplayID != targetDisplayID else { return }
         migratingDisplayID = targetDisplayID
 
         let startFrame = NSRect(
             x: windowFrame.minX,
-            y: windowFrame.maxY - 1,
+            y: windowFrame.maxY - Self.displayRevealStartHeight(
+                closedHeight: screen.islandClosedHeight,
+                targetHeight: windowFrame.height
+            ),
             width: windowFrame.width,
-            height: 1
+            height: Self.displayRevealStartHeight(
+                closedHeight: screen.islandClosedHeight,
+                targetHeight: windowFrame.height
+            )
         )
         panel.alphaValue = 1
         panel.setFrame(startFrame, display: true)
 
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.22
+            context.duration = duration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel.animator().setFrame(windowFrame, display: true)
         } completionHandler: { [weak self] in
