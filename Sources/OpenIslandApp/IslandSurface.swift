@@ -22,6 +22,10 @@ enum IslandSurface: Equatable {
 
     static func notificationSurface(for event: AgentEvent) -> IslandSurface? {
         switch event {
+        case let .sessionStarted(payload):
+            payload.isRemote && payload.title.hasPrefix("CI/CD ·")
+                ? .sessionList(actionableSessionID: payload.sessionID)
+                : nil
         case let .permissionRequested(payload):
             .sessionList(actionableSessionID: payload.sessionID)
         case let .questionAsked(payload):
@@ -50,7 +54,7 @@ enum IslandSurface: Equatable {
         case .completed:
             return true
         case .running:
-            return false
+            return session.isRemote && session.title.hasPrefix("CI/CD ·")
         }
     }
 }

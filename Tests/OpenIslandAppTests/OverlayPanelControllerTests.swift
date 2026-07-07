@@ -46,14 +46,13 @@ struct OverlayPanelControllerTests {
     }
 
     @Test
-    func notchedDisplayClosedWidthWrapsPhysicalNotchWithFixedReserve() {
-        // v6 MacBook layout: outer width = 44 + physical notch + 44.
+    func notchedDisplayClosedWidthWrapsPhysicalNotchAndContent() {
         let width = OverlayPanelController.closedPanelWidth(
             notchWidth: 224,
             isNotchedDisplay: true,
             notchStatus: .closed
         )
-        #expect(width == CGFloat(224 + 88))
+        #expect(width == CGFloat(368))
     }
 
     @Test
@@ -76,7 +75,7 @@ struct OverlayPanelControllerTests {
             isNotchedDisplay: true,
             notchStatus: .popping
         )
-        #expect(width == CGFloat(224 + 88 + 18))
+        #expect(width == CGFloat(368 + 18))
     }
 
     @Test

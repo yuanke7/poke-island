@@ -68,6 +68,7 @@ final class AppModel {
     let discovery = SessionDiscoveryCoordinator()
     let monitoring = ProcessMonitoringCoordinator()
     let codexAppServer = CodexAppServerCoordinator()
+    let gitLabCICDMonitor = GitLabCICDMonitor()
     let updateChecker = UpdateChecker()
 
     var notchStatus: NotchStatus {
@@ -378,6 +379,44 @@ final class AppModel {
         set { updateAppearancePreferences(for: activeAppearanceProfile) { $0.completedStaleThreshold = newValue } }
     }
 
+    var islandOpenAnimationDuration: Double {
+        get {
+            resolvedAnimationDuration(
+                active: appearancePreferences(for: activeAppearanceProfile).openAnimationDuration,
+                other: appearancePreferences(for: inactiveAppearanceProfile).openAnimationDuration,
+                defaultValue: IslandAppearancePreferences().openAnimationDuration
+            )
+        }
+        set {
+            updateAppearancePreferences(for: .notch) { $0.openAnimationDuration = newValue }
+            updateAppearancePreferences(for: .topBar) { $0.openAnimationDuration = newValue }
+        }
+    }
+
+    var islandCloseAnimationDuration: Double {
+        get {
+            resolvedAnimationDuration(
+                active: appearancePreferences(for: activeAppearanceProfile).closeAnimationDuration,
+                other: appearancePreferences(for: inactiveAppearanceProfile).closeAnimationDuration,
+                defaultValue: IslandAppearancePreferences().closeAnimationDuration
+            )
+        }
+        set {
+            updateAppearancePreferences(for: .notch) { $0.closeAnimationDuration = newValue }
+            updateAppearancePreferences(for: .topBar) { $0.closeAnimationDuration = newValue }
+        }
+    }
+
+    private var inactiveAppearanceProfile: IslandAppearanceDisplayProfile {
+        activeAppearanceProfile == .notch ? .topBar : .notch
+    }
+
+    private func resolvedAnimationDuration(active: Double, other: Double, defaultValue: Double) -> Double {
+        if abs(active - defaultValue) > 0.001 { return active }
+        if abs(other - defaultValue) > 0.001 { return other }
+        return active
+    }
+
     @ObservationIgnored
     var openSettingsWindow: (() -> Void)?
     @ObservationIgnored
@@ -430,6 +469,8 @@ final class AppModel {
         defaults.set(preferences.sessionGroup.rawValue, forKey: Self.appearanceDefaultsKey(profile, "sessionGroup"))
         defaults.set(preferences.sessionSort.rawValue, forKey: Self.appearanceDefaultsKey(profile, "sessionSort"))
         defaults.set(preferences.completedStaleThreshold.rawValue, forKey: Self.appearanceDefaultsKey(profile, "completedStaleThreshold"))
+        defaults.set(preferences.openAnimationDuration, forKey: Self.appearanceDefaultsKey(profile, "openAnimationDuration"))
+        defaults.set(preferences.closeAnimationDuration, forKey: Self.appearanceDefaultsKey(profile, "closeAnimationDuration"))
     }
 
     // MARK: - Watch Notification
@@ -576,8 +617,20 @@ final class AppModel {
                 rawValue: defaults.string(forKey: appearanceDefaultsKey(profile, "completedStaleThreshold"))
                     ?? defaults.string(forKey: legacyCompletedStaleThresholdDefaultsKey)
                     ?? ""
-            ) ?? .fiveMinutes
+            ) ?? .fiveMinutes,
+            openAnimationDuration: Self.animationDuration(
+                defaults.double(forKey: appearanceDefaultsKey(profile, "openAnimationDuration")),
+                fallback: IslandAppearancePreferences().openAnimationDuration
+            ),
+            closeAnimationDuration: Self.animationDuration(
+                defaults.double(forKey: appearanceDefaultsKey(profile, "closeAnimationDuration")),
+                fallback: IslandAppearancePreferences().closeAnimationDuration
+            )
         )
+    }
+
+    private static func animationDuration(_ value: Double, fallback: Double) -> Double {
+        value >= 0.15 && value <= 0.60 ? value : fallback
     }
 
     init(
@@ -661,6 +714,9 @@ final class AppModel {
         }
 
         codexAppServer.onEvent = { [weak self] event in
+            self?.applyTrackedEvent(event, ingress: .bridge)
+        }
+        gitLabCICDMonitor.onEvent = { [weak self] event in
             self?.applyTrackedEvent(event, ingress: .bridge)
         }
         codexAppServer.onStatusMessage = { [weak self] message in
@@ -1085,6 +1141,7 @@ final class AppModel {
                 hooks.startCodexUsageMonitoringIfNeeded()
             }
             updateChecker.startIfNeeded()
+            gitLabCICDMonitor.startIfNeeded()
 
         } else {
             isResolvingInitialLiveSessions = false

@@ -5,7 +5,7 @@ import OpenIslandCore
 
 @MainActor
 final class OverlayPanelController {
-    private static let preferredNotchOpenedPanelWidth: CGFloat = 540
+    private static let preferredNotchOpenedPanelWidth: CGFloat = 620
     private static let preferredTopBarOpenedPanelWidth: CGFloat = 520
     private static let preferredNotificationPanelWidth: CGFloat = 620
     private static let openedContentWidthPadding: CGFloat = 0
@@ -35,6 +35,7 @@ final class OverlayPanelController {
     private var eventMonitors = NotchEventMonitors()
     private var hoverTimer: DispatchWorkItem?
     private var hoverCancelGrace: DispatchWorkItem?
+    private var migratingDisplayID: String?
     weak var model: AppModel?
     private(set) var notchRect: NSRect = .zero
 
@@ -160,20 +161,19 @@ final class OverlayPanelController {
 
         let windowFrame = panelFrame(for: model, on: screen)
 
-        // Always set the panel frame instantly — no AppKit animation.
-        // All visual transitions (shape, size, opacity, corner radius) are
-        // driven by SwiftUI's .animation() modifier on the content view.
-        // Mixing NSAnimationContext with SwiftUI spring animations caused
-        // visible jank because the two systems have different timing curves,
-        // durations, and start times (AppKit was deferred by one runloop).
         if panel.frame != windowFrame {
-            panel.setFrame(windowFrame, display: true)
+            let isDisplayMigration = panel.screen != screen
+            if animated && isDisplayMigration {
+                revealPanel(panel, to: windowFrame, on: screen)
+            } else {
+                panel.setFrame(windowFrame, display: true)
+            }
         }
         computeNotchRect(screen: screen)
 
         return OverlayDisplayResolver.diagnostics(
             preferredScreenID: preferredScreenID,
-            panelSize: panel.frame.size
+            panelSize: windowFrame.size
         )
     }
 
@@ -259,8 +259,11 @@ final class OverlayPanelController {
             return screen
         }
 
-        if let notchScreen = screens.first(where: { $0.safeAreaInsets.top > 0 }) {
-            return notchScreen
+        if preferredScreenID == nil {
+            let mouseLocation = NSEvent.mouseLocation
+            if let mouseScreen = screens.first(where: { NSMouseInRect(mouseLocation, $0.frame, false) }) {
+                return mouseScreen
+            }
         }
 
         return NSScreen.main ?? screens[0]
@@ -272,6 +275,44 @@ final class OverlayPanelController {
             return "display-\(number.uint32Value)"
         }
         return screen.localizedName
+    }
+
+    private func revealPanel(_ panel: NSPanel, to windowFrame: NSRect, on screen: NSScreen) {
+        let targetDisplayID = screenID(for: screen)
+        guard migratingDisplayID != targetDisplayID else { return }
+        migratingDisplayID = targetDisplayID
+
+        let startFrame = NSRect(
+            x: windowFrame.minX,
+            y: windowFrame.maxY - 1,
+            width: windowFrame.width,
+            height: 1
+        )
+        panel.alphaValue = 1
+        panel.setFrame(startFrame, display: true)
+
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.22
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().setFrame(windowFrame, display: true)
+        } completionHandler: { [weak self] in
+            Task { @MainActor in
+                self?.migratingDisplayID = nil
+            }
+        }
+    }
+
+    private func migrateAutomaticPanelToMouseScreen(_ screenPoint: NSPoint) {
+        guard let model,
+              model.overlayDisplaySelectionID == OverlayDisplayOption.automaticID,
+              model.notchStatus == .closed,
+              let panel,
+              let screen = NSScreen.screens.first(where: { NSMouseInRect(screenPoint, $0.frame, false) }),
+              panel.screen != screen else {
+            return
+        }
+
+        positionPanel(panel, preferredScreenID: nil, animated: true)
     }
 
     // MARK: - Mouse event monitoring
@@ -293,7 +334,10 @@ final class OverlayPanelController {
     private func handleMouseMoved(_ screenLocation: NSPoint) {
         guard let model else { return }
 
-        let inClosedSurfaceArea = isPointInClosedSurfaceArea(screenLocation)
+        migrateAutomaticPanelToMouseScreen(screenLocation)
+
+        let inClosedSurfaceArea = isPointInAutomaticClosedSurfaceArea(screenLocation)
+            || isPointInClosedSurfaceArea(screenLocation)
 
         if model.notchStatus == .closed && inClosedSurfaceArea {
             scheduleHoverOpen()
@@ -317,7 +361,8 @@ final class OverlayPanelController {
     private func handleMouseDown(_ screenLocation: NSPoint) {
         guard let model else { return }
 
-        let inClosedSurfaceArea = isPointInClosedSurfaceArea(screenLocation)
+        let inClosedSurfaceArea = isPointInAutomaticClosedSurfaceArea(screenLocation)
+            || isPointInClosedSurfaceArea(screenLocation)
 
         if model.notchStatus == .closed && inClosedSurfaceArea {
             cancelHoverOpenImmediately()
@@ -472,13 +517,7 @@ final class OverlayPanelController {
             && point.y <= rect.maxY
     }
 
-    /// Hit-area width of the v6 closed pill.
-    ///
-    /// - On a MacBook (physical notch present) the pill is locked to
-    ///   `44 + notchWidth + 44`, per the v6 design spec.
-    /// - On an external display the width is content-driven; we return a
-    ///   generous fixed hit-area so hover / click detection works without
-    ///   the controller having to introspect live session state.
+    /// Hit-area width of the closed island.
     nonisolated static func closedPanelWidth(
         notchWidth: CGFloat,
         isNotchedDisplay: Bool,
@@ -486,9 +525,41 @@ final class OverlayPanelController {
     ) -> CGFloat {
         let popBonus: CGFloat = notchStatus == .popping ? 18 : 0
         if isNotchedDisplay {
-            return notchWidth + 88 + popBonus
+            let notchHorizontalReserve: CGFloat = 144
+            let minimumNotchClosedPanelWidth: CGFloat = 368
+            return max(notchWidth + notchHorizontalReserve, minimumNotchClosedPanelWidth) + popBonus
         }
         return 360 + popBonus
+    }
+
+    private func isPointInAutomaticClosedSurfaceArea(_ screenPoint: NSPoint) -> Bool {
+        guard let model,
+              model.overlayDisplaySelectionID == OverlayDisplayOption.automaticID,
+              model.notchStatus == .closed,
+              let screen = NSScreen.screens.first(where: { NSMouseInRect(screenPoint, $0.frame, false) }) else {
+            return false
+        }
+
+        let notchSize = screen.notchSize
+        let screenFrame = screen.frame
+        let candidateNotchRect = NSRect(
+            x: screenFrame.midX - notchSize.width / 2,
+            y: screenFrame.maxY - notchSize.height,
+            width: notchSize.width,
+            height: notchSize.height
+        )
+        let candidateRect = Self.closedSurfaceRect(
+            notchRect: candidateNotchRect,
+            closedWidth: closedPanelWidth(for: model, on: screen)
+        )
+        guard Self.rectContainsIncludingEdges(candidateRect, point: screenPoint) else {
+            return false
+        }
+
+        if panel?.screen != screen, let panel {
+            positionPanel(panel, preferredScreenID: nil, animated: true)
+        }
+        return true
     }
 
     private func closedSurfaceRect(for model: AppModel) -> NSRect? {
@@ -1006,7 +1077,7 @@ extension NSScreen {
         let notchHeight = safeAreaInsets.top
         let leftPadding = auxiliaryTopLeftArea?.width ?? 0
         let rightPadding = auxiliaryTopRightArea?.width ?? 0
-        let notchWidth = frame.width - leftPadding - rightPadding + 4
+        let notchWidth = frame.width - leftPadding - rightPadding
 
         return CGSize(width: notchWidth, height: notchHeight)
     }

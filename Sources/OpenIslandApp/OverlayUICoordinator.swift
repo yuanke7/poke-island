@@ -231,7 +231,7 @@ final class OverlayUICoordinator {
     func refreshOverlayDisplayConfiguration() {
         overlayDisplayOptions = overlayPanelController.availableDisplayOptions()
 
-        let validSelectionIDs = Set(overlayDisplayOptions.map(\.id))
+        let validSelectionIDs = Set(overlayDisplayOptions.map(\.id)).union([OverlayDisplayOption.automaticID])
         if !validSelectionIDs.contains(overlayDisplaySelectionID) {
             overlayDisplaySelectionID = OverlayDisplayOption.automaticID
             return
@@ -261,7 +261,7 @@ final class OverlayUICoordinator {
             return false
         }
 
-        if notchOpenReason == .hover && !islandSurface.isNotificationCard {
+        if notchOpenReason == .hover {
             return true
         }
 
@@ -328,7 +328,9 @@ final class OverlayUICoordinator {
 
         appModel?.measuredNotificationContentHeight = 0
         NotificationSoundService.playNotification(isMuted: isSoundMuted)
-        notchOpen(reason: .notification, surface: surface)
+        let session = surface.sessionID.flatMap { appModel?.state.session(id: $0) }
+        let reason: NotchOpenReason = session?.phase == .completed ? .hover : .notification
+        notchOpen(reason: reason, surface: surface)
     }
 
     func shouldPreserveCurrentNotificationSurface(against candidate: IslandSurface) -> Bool {

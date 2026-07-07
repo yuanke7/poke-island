@@ -61,6 +61,8 @@ struct IslandAppearancePreferences: Equatable, Sendable {
     var sessionGroup: IslandSessionGroup = .none
     var sessionSort: IslandSessionSort = .attention
     var completedStaleThreshold: IslandCompletedStaleThreshold = .fiveMinutes
+    var openAnimationDuration: Double = 0.24
+    var closeAnimationDuration: Double = 0.30
 }
 
 enum IslandUsageDisplay: String, CaseIterable, Identifiable, Sendable {

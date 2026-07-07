@@ -72,22 +72,8 @@ extension AgentSession {
 
 // MARK: - Animations
 
-private let openAnimation = Animation.smooth(duration: 0.24)
-private let closeAnimation = Animation.smooth(duration: 0.3)
 private let popAnimation = Animation.spring(response: 0.3, dampingFraction: 0.5)
 private let openedSurfaceUnmountDelay: TimeInterval = 0.36
-
-private struct ConditionalDrawingGroup: ViewModifier {
-    let enabled: Bool
-
-    func body(content: Content) -> some View {
-        if enabled {
-            content.drawingGroup()
-        } else {
-            content
-        }
-    }
-}
 
 // MARK: - Main island view
 
@@ -109,6 +95,9 @@ struct IslandPanelView: View {
     @State private var keepsOpenedSurfaceMounted = false
     @State private var openedSurfaceMountGeneration: UInt64 = 0
     @State private var openedContentVisible = false
+    @State private var surfaceExpansionGeneration: UInt64 = 0
+    @State private var openedWidthProgress: CGFloat = 0
+    @State private var openedHeightProgress: CGFloat = 0
 
     private var isOpened: Bool {
         model.notchStatus == .opened
@@ -125,8 +114,8 @@ struct IslandPanelView: View {
     /// Single animation selection based on the current notch status.
     private var notchTransitionAnimation: Animation {
         switch model.notchStatus {
-        case .opened:  return openAnimation
-        case .closed:  return closeAnimation
+        case .opened:  return .smooth(duration: model.islandOpenAnimationDuration)
+        case .closed:  return .smooth(duration: model.islandCloseAnimationDuration)
         case .popping: return popAnimation
         }
     }
@@ -186,9 +175,11 @@ struct IslandPanelView: View {
         }
         .onAppear {
             syncOpenedSurfaceMount(with: model.notchStatus, immediate: true)
+            syncSurfaceExpansion(with: model.notchStatus, immediate: true)
         }
         .onChange(of: model.notchStatus) { _, status in
             syncOpenedSurfaceMount(with: status)
+            syncSurfaceExpansion(with: status)
             syncOpenedContentVisibility(with: status)
         }
     }
@@ -205,26 +196,25 @@ struct IslandPanelView: View {
         let outerBottomPadding: CGFloat = 0
         let openedWidth = max(0, layoutWidth - outerHorizontalPadding)
         let openedHeight = max(closedNotchHeight, layoutHeight - outerBottomPadding)
+        let closedSurfaceWidth = isExternalDisplayPlacement ? 360 : closedNotchWidth
+        let surfaceWidth = closedSurfaceWidth + ((openedWidth - closedSurfaceWidth) * openedWidthProgress)
+        let surfaceHeight = closedNotchHeight + ((openedHeight - closedNotchHeight) * openedHeightProgress)
 
         VStack(spacing: 0) {
             ZStack(alignment: .top) {
-                openedSurface(width: openedWidth, height: openedHeight)
-                    .opacity(usesOpenedVisualState ? 1 : 0)
-                    .scaleEffect(usesOpenedVisualState ? 1 : 0.14, anchor: .top)
-                    .offset(y: usesOpenedVisualState ? 0 : -openedHeight * 0.42)
+                openedSurface(width: surfaceWidth, height: surfaceHeight)
                     .allowsHitTesting(usesOpenedVisualState)
 
-                v6ClosedSurface()
-                    .opacity(usesOpenedVisualState ? 0.08 : 1)
-                    .scaleEffect(usesOpenedVisualState ? 1.08 : 1, anchor: .top)
-                    .allowsHitTesting(!usesOpenedVisualState)
+                if openedWidthProgress == 0, openedHeightProgress == 0 {
+                    v6ClosedSurface()
+                        .allowsHitTesting(!usesOpenedVisualState)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .scaleEffect(usesOpenedVisualState ? 1 : (isHovering ? IslandChromeMetrics.closedHoverScale : 1), anchor: .top)
         .padding(.horizontal, panelShadowHorizontalInset)
         .padding(.bottom, panelShadowBottomInset)
-        .animation(notchTransitionAnimation, value: model.notchStatus)
         .contentShape(Rectangle())
         .onHover { hovering in
             withAnimation(.easeOut(duration: 0.12)) {
@@ -261,12 +251,58 @@ struct IslandPanelView: View {
         }
     }
 
+    private func syncSurfaceExpansion(with status: NotchStatus, immediate: Bool = false) {
+        surfaceExpansionGeneration &+= 1
+        let generation = surfaceExpansionGeneration
+
+        if immediate {
+            let progress: CGFloat = status == .opened ? 1 : 0
+            openedWidthProgress = progress
+            openedHeightProgress = progress
+            return
+        }
+
+        switch status {
+        case .opened:
+            let widthDuration = model.islandOpenAnimationDuration * 0.42
+            let heightDuration = model.islandOpenAnimationDuration - widthDuration
+
+            withAnimation(.spring(response: widthDuration, dampingFraction: 0.88)) {
+                openedWidthProgress = 1
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + widthDuration) {
+                guard surfaceExpansionGeneration == generation,
+                      model.notchStatus == .opened else { return }
+                withAnimation(.spring(response: heightDuration, dampingFraction: 0.9)) {
+                    openedHeightProgress = 1
+                }
+            }
+
+        case .closed, .popping:
+            let heightDuration = model.islandCloseAnimationDuration * 0.55
+            let widthDuration = model.islandCloseAnimationDuration - heightDuration
+
+            withAnimation(.spring(response: heightDuration, dampingFraction: 0.92)) {
+                openedHeightProgress = 0
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + heightDuration) {
+                guard surfaceExpansionGeneration == generation,
+                      model.notchStatus != .opened else { return }
+                withAnimation(.spring(response: widthDuration, dampingFraction: 0.9)) {
+                    openedWidthProgress = 0
+                }
+            }
+        }
+    }
+
     private func syncOpenedContentVisibility(with status: NotchStatus) {
         if status == .opened {
             openedContentVisible = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + model.islandOpenAnimationDuration + 0.03) {
                 guard model.notchStatus == .opened else { return }
-                withAnimation(.easeOut(duration: 0.16)) {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
                     openedContentVisible = true
                 }
             }
@@ -326,7 +362,6 @@ struct IslandPanelView: View {
                         .frame(maxHeight: max(0, openedHeight - closedNotchHeight), alignment: .top)
                         .clipped()
                 }
-                .transition(.opacity)
                 .frame(width: openedWidth, height: openedHeight, alignment: .top)
                 .padding(.horizontal, horizontalInset)
                 .padding(.bottom, bottomInset)
@@ -598,7 +633,6 @@ struct IslandPanelView: View {
                     stateIndicator: model.islandSessionStateIndicator,
                     completedStaleThreshold: model.completedStaleThreshold.seconds,
                     isActionable: true,
-                    useDrawingGroup: model.notchStatus == .opened,
                     isInteractive: model.notchStatus == .opened,
                     presentation: .notification,
                     sideInset: sessionListSideInset,
@@ -640,7 +674,6 @@ struct IslandPanelView: View {
                                 stateIndicator: model.islandSessionStateIndicator,
                                 completedStaleThreshold: model.completedStaleThreshold.seconds,
                                 isActionable: session.phase.requiresAttention || session.id == actionableSessionID,
-                                useDrawingGroup: model.notchStatus == .opened,
                                 isInteractive: model.notchStatus == .opened,
                                 sideInset: sessionListSideInset,
                                 lang: model.lang,
@@ -690,7 +723,6 @@ struct IslandPanelView: View {
                         stateIndicator: model.islandSessionStateIndicator,
                         completedStaleThreshold: model.completedStaleThreshold.seconds,
                         isActionable: session.phase.requiresAttention || session.id == actionableSessionID,
-                        useDrawingGroup: model.notchStatus == .opened,
                         isInteractive: model.notchStatus == .opened,
                         sideInset: sessionListSideInset,
                         lang: model.lang,
@@ -1209,7 +1241,6 @@ private struct IslandSessionRow: View {
     var stateIndicator: IslandSessionStateIndicator = .animatedDot
     var completedStaleThreshold: TimeInterval = AgentSession.staleCompletedDisplayThreshold
     var isActionable: Bool = false
-    var useDrawingGroup: Bool = true
     var isInteractive: Bool = true
     var presentation: IslandSessionRowPresentation = .list
     var sideInset: CGFloat = 16
@@ -1269,7 +1300,6 @@ private struct IslandSessionRow: View {
             }
         }
         .opacity(isStaleCompleted ? 0.7 : 1)
-        .modifier(ConditionalDrawingGroup(enabled: useDrawingGroup && !isActionable))
         .contentShape(Rectangle())
         .animation(.easeInOut(duration: 0.15), value: isHighlighted)
         .onTapGesture(perform: handlePrimaryTap)

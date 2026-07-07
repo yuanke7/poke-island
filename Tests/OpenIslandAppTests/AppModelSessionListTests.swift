@@ -215,6 +215,7 @@ struct AppModelSessionListTests {
     func freshCompletedSessionsSortAheadOfV8StaleCompletedSessions() {
         let now = Date()
         let model = AppModel()
+        configureIslandList(model, sort: .lastUpdate)
 
         var staleCompleted = AgentSession(
             id: "stale-completed",
@@ -263,8 +264,7 @@ struct AppModelSessionListTests {
     func islandSessionSectionsGroupStaleCompletedIntoIdle() {
         let now = Date()
         let model = AppModel()
-        model.islandSessionGroup = .state
-        model.completedStaleThreshold = .fiveMinutes
+        configureIslandList(model, group: .state, staleThreshold: .fiveMinutes)
 
         var approval = listSession(id: "approval", phase: .waitingForApproval, updatedAt: now)
         approval.permissionRequest = PermissionRequest(
@@ -289,8 +289,7 @@ struct AppModelSessionListTests {
     func islandSessionSectionsKeepCompletedInDoneWhenStaleThresholdIsNever() {
         let now = Date()
         let model = AppModel()
-        model.islandSessionGroup = .state
-        model.completedStaleThreshold = .never
+        configureIslandList(model, group: .state, staleThreshold: .never)
 
         var oldDone = listSession(id: "old-done", phase: .completed, updatedAt: now.addingTimeInterval(-86_400))
         oldDone.isProcessAlive = true
@@ -304,7 +303,7 @@ struct AppModelSessionListTests {
     func islandSessionListCanSortByLastUpdate() {
         let now = Date()
         let model = AppModel()
-        model.islandSessionSort = .lastUpdate
+        configureIslandList(model, sort: .lastUpdate)
 
         var olderRunning = listSession(id: "older-running", phase: .running, updatedAt: now.addingTimeInterval(-120))
         var newerCompleted = listSession(id: "newer-completed", phase: .completed, updatedAt: now.addingTimeInterval(-10))
@@ -666,39 +665,28 @@ struct AppModelSessionListTests {
     }
 
     @Test
-    func completionNotificationRequiresSurfaceEntryBeforePointerExitCollapse() {
+    func completionNotificationUsesHoverPointerExitCollapse() {
         let model = AppModel()
-        // Add a completed session so autoDismissesWhenPresentedAsNotification can check phase
-        model.applyTrackedEvent(
-            .sessionStarted(SessionStarted(
-                sessionID: "session-1",
+        model.isSoundMuted = true
+        model.state = SessionState(sessions: [
+            AgentSession(
+                id: "session-1",
                 title: "Test",
                 tool: .codex,
+                attachmentState: .attached,
+                phase: .completed,
                 summary: "Done",
-                timestamp: .now
-            )),
-            updateLastActionMessage: false
-        )
-        model.applyTrackedEvent(
-            .sessionCompleted(SessionCompleted(
-                sessionID: "session-1",
-                summary: "Done",
-                timestamp: .now
-            )),
-            updateLastActionMessage: false
-        )
-        model.notchStatus = .opened
-        model.notchOpenReason = .notification
-        model.islandSurface = .sessionList(actionableSessionID: "session-1")
+                updatedAt: .now
+            )
+        ])
 
-        #expect(model.shouldAutoCollapseOnMouseLeave)
-
-        model.handlePointerExitedIslandSurface()
+        model.overlay.presentNotificationSurface(.sessionList(actionableSessionID: "session-1"))
 
         #expect(model.notchStatus == .opened)
-        #expect(model.notchOpenReason == .notification)
+        #expect(model.notchOpenReason == .hover)
+        #expect(model.islandSurface == .sessionList(actionableSessionID: "session-1"))
+        #expect(model.shouldAutoCollapseOnMouseLeave)
 
-        model.notePointerInsideIslandSurface()
         model.handlePointerExitedIslandSurface()
 
         #expect(model.notchStatus == .closed)
@@ -706,41 +694,28 @@ struct AppModelSessionListTests {
     }
 
     @Test
-    func completionNotificationDefersTimedCollapseWhilePointerIsInside() {
+    func completionNotificationDoesNotUseTimedCollapse() {
         let model = AppModel()
-        model.applyTrackedEvent(
-            .sessionStarted(SessionStarted(
-                sessionID: "session-1",
+        model.isSoundMuted = true
+        model.state = SessionState(sessions: [
+            AgentSession(
+                id: "session-1",
                 title: "Test",
                 tool: .codex,
+                attachmentState: .attached,
+                phase: .completed,
                 summary: "Done",
-                timestamp: .now
-            )),
-            updateLastActionMessage: false
-        )
-        model.applyTrackedEvent(
-            .sessionCompleted(SessionCompleted(
-                sessionID: "session-1",
-                summary: "Done",
-                timestamp: .now
-            )),
-            updateLastActionMessage: false
-        )
-        model.notchStatus = .opened
-        model.notchOpenReason = .notification
-        model.islandSurface = .sessionList(actionableSessionID: "session-1")
+                updatedAt: .now
+            )
+        ])
 
+        model.overlay.presentNotificationSurface(.sessionList(actionableSessionID: "session-1"))
+
+        #expect(model.notchStatus == .opened)
+        #expect(model.notchOpenReason == .hover)
         #expect(model.shouldAutoCollapseOnMouseLeave)
+        #expect(!model.hasPendingNotificationAutoCollapse)
         #expect(!model.shouldDeferTimedNotificationAutoCollapse)
-
-        model.notePointerInsideIslandSurface()
-
-        #expect(model.shouldDeferTimedNotificationAutoCollapse)
-
-        model.handlePointerExitedIslandSurface()
-
-        #expect(model.notchStatus == .closed)
-        #expect(model.notchOpenReason == nil)
     }
 
     @Test
@@ -1061,7 +1036,7 @@ struct AppModelSessionListTests {
         model.overlay.presentNotificationSurface(surface)
 
         #expect(model.notchStatus == .opened)
-        #expect(model.notchOpenReason == .notification)
+        #expect(model.notchOpenReason == .hover)
         #expect(model.islandSurface == surface)
         #expect(model.activeIslandCardSession?.phase == .completed)
         #expect(
@@ -1234,6 +1209,21 @@ struct AppModelSessionListTests {
                 terminalSessionID: "ghostty-\(id)"
             )
         )
+    }
+
+    private func configureIslandList(
+        _ model: AppModel,
+        group: IslandSessionGroup = .none,
+        sort: IslandSessionSort = .attention,
+        staleThreshold: IslandCompletedStaleThreshold = .fiveMinutes
+    ) {
+        for profile in IslandAppearanceDisplayProfile.allCases {
+            model.updateAppearancePreferences(for: profile) {
+                $0.sessionGroup = group
+                $0.sessionSort = sort
+                $0.completedStaleThreshold = staleThreshold
+            }
+        }
     }
 
     private func placementDiagnostics(mode: OverlayPlacementMode) -> OverlayPlacementDiagnostics {
