@@ -286,6 +286,10 @@ final class OverlayUICoordinator {
     }
 
     var autoCollapseOnMouseLeaveRequiresPriorSurfaceEntry: Bool {
+        if notchOpenReason == .hover {
+            return islandSurface.isNotificationCard
+        }
+
         guard notchOpenReason == .notification else { return false }
         // If the session was removed from state (e.g. by process monitoring),
         // default to requiring prior surface entry — prevents the notification

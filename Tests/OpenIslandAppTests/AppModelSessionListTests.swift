@@ -706,6 +706,11 @@ struct AppModelSessionListTests {
         now = now.addingTimeInterval(0.7)
         model.handlePointerExitedIslandSurface()
 
+        #expect(model.notchStatus == .opened)
+
+        model.notePointerInsideIslandSurface()
+        model.handlePointerExitedIslandSurface()
+
         #expect(model.notchStatus == .closed)
         #expect(model.notchOpenReason == nil)
     }
