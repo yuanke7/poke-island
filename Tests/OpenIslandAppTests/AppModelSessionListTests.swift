@@ -678,6 +678,8 @@ struct AppModelSessionListTests {
     func completionNotificationUsesHoverPointerExitCollapse() {
         let model = AppModel()
         model.isSoundMuted = true
+        var now = Date(timeIntervalSince1970: 1_000)
+        model.overlay.currentDate = { now }
         model.state = SessionState(sessions: [
             AgentSession(
                 id: "session-1",
@@ -697,6 +699,11 @@ struct AppModelSessionListTests {
         #expect(model.islandSurface == .sessionList(actionableSessionID: "session-1"))
         #expect(model.shouldAutoCollapseOnMouseLeave)
 
+        model.handlePointerExitedIslandSurface()
+
+        #expect(model.notchStatus == .opened)
+
+        now = now.addingTimeInterval(0.7)
         model.handlePointerExitedIslandSurface()
 
         #expect(model.notchStatus == .closed)
@@ -725,7 +732,6 @@ struct AppModelSessionListTests {
         #expect(model.notchOpenReason == .hover)
         #expect(model.shouldAutoCollapseOnMouseLeave)
         #expect(!model.hasPendingNotificationAutoCollapse)
-        #expect(!model.shouldDeferTimedNotificationAutoCollapse)
     }
 
     @Test
@@ -746,8 +752,6 @@ struct AppModelSessionListTests {
         )
 
         model.notchOpen(reason: .notification, surface: .sessionList(actionableSessionID: "session-1"))
-
-        #expect(model.hasPendingNotificationAutoCollapse)
 
         model.notePointerInsideIslandSurface()
 

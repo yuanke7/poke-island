@@ -8,6 +8,7 @@ import OpenIslandCore
 final class OverlayUICoordinator {
 
     private static let notificationSurfaceAutoCollapseDelay: TimeInterval = 10
+    private static let hoverNotificationExitGrace: TimeInterval = 0.6
 
     var notchStatus: NotchStatus = .closed
     var notchOpenReason: NotchOpenReason?
@@ -65,6 +66,12 @@ final class OverlayUICoordinator {
     @ObservationIgnored
     private var isPointerInsideIslandSurface = false
 
+    @ObservationIgnored
+    var currentDate: () -> Date = Date.init
+
+    @ObservationIgnored
+    private var hoverNotificationExitGraceUntil: Date?
+
     /// Kept for API compatibility; always false now that the window never
     /// resizes and close transitions are pure SwiftUI.
     var isCloseTransitionPending: Bool { false }
@@ -116,6 +123,9 @@ final class OverlayUICoordinator {
                 guard let self else { return }
                 self.autoCollapseSurfaceHasBeenEntered = false
                 self.isPointerInsideIslandSurface = false
+                self.hoverNotificationExitGraceUntil = reason == .hover && surface.isNotificationCard
+                    ? self.currentDate().addingTimeInterval(Self.hoverNotificationExitGrace)
+                    : nil
                 self.updateNotificationAutoCollapse()
             },
             onPlacementResolved: { [weak self] in
@@ -138,6 +148,7 @@ final class OverlayUICoordinator {
             afterStateChange: { [weak self] in
                 self?.autoCollapseSurfaceHasBeenEntered = false
                 self?.isPointerInsideIslandSurface = false
+                self?.hoverNotificationExitGraceUntil = nil
                 self?.appModel?.measuredNotificationContentHeight = 0
             }
         )
@@ -294,6 +305,7 @@ final class OverlayUICoordinator {
 
         isPointerInsideIslandSurface = true
         autoCollapseSurfaceHasBeenEntered = true
+        hoverNotificationExitGraceUntil = nil
 
         if notchOpenReason == .notification {
             notificationAutoCollapseTask?.cancel()
@@ -310,6 +322,11 @@ final class OverlayUICoordinator {
 
         guard shouldAutoCollapseOnMouseLeave else {
             return
+        }
+
+        if let graceUntil = hoverNotificationExitGraceUntil {
+            guard currentDate() >= graceUntil else { return }
+            hoverNotificationExitGraceUntil = nil
         }
 
         guard !autoCollapseOnMouseLeaveRequiresPriorSurfaceEntry
