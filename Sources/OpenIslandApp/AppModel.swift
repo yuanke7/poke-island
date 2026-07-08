@@ -1300,11 +1300,7 @@ final class AppModel {
 
     func showSettings() {
         shouldShowSettingsWindow = true
-        if let openSettingsWindow {
-            openSettingsWindow()
-        } else {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        }
+        openSettingsWindow?()
         NSApp.activate(ignoringOtherApps: true)
     }
 

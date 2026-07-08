@@ -108,8 +108,29 @@ private struct SettingsWindowContent: View {
 
     var body: some View {
         SettingsView(model: model)
+            .background(SettingsWindowAccessor { window in
+                model.openSettingsWindow = { [weak window] in
+                    window?.makeKeyAndOrderFront(nil)
+                }
+            })
             .onAppear {
                 model.shouldShowSettingsWindow = true
             }
+    }
+}
+
+private struct SettingsWindowAccessor: NSViewRepresentable {
+    var onResolve: (NSWindow) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        NSView(frame: .zero)
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        DispatchQueue.main.async {
+            if let window = nsView.window {
+                onResolve(window)
+            }
+        }
     }
 }
