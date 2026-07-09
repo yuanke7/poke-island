@@ -1,4 +1,4 @@
-# Open Island · v8 design bundle
+# Poke Island · v8 design bundle
 
 Engineering-aligned redesign that consolidates **notch / session panel /
 notification** into a single shape-shifting pill (the "pill is the product"
@@ -9,7 +9,7 @@ the `UnifiedBars` glyph from v6 unchanged.
 ## Open it
 
 ```
-open "design/v8-bundle/project/Open Island - v8 (final) v2.html"
+open "design/v8-bundle/project/Poke Island - v8 (final) v2.html"
 ```
 
 The HTML is self-contained: React 18 / babel-standalone via CDN, no build
@@ -26,7 +26,7 @@ cd design/v8-bundle/project && python3 -m http.server 8765
 ```
 v8-bundle/
 ├── project/
-│   ├── Open Island - v8 (final) v2.html    ← entry
+│   ├── Poke Island - v8 (final) v2.html    ← entry
 │   ├── styles_v3.css   ← page chrome (shared with v3-v6)
 │   ├── styles_v7.css   ← pill / panel / notif base
 │   ├── styles_v8.css   ← v8 overrides + engineering-aligned additions

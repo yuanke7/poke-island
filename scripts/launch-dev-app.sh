@@ -13,7 +13,7 @@ done
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 brand_script="$repo_root/scripts/generate_brand_icons.py"
 brand_icon="$repo_root/Assets/Brand/OpenIsland.icns"
-bundle_dir="$HOME/Applications/Open Island Dev.app"
+bundle_dir="$HOME/Applications/Poke Island.app"
 plist_path="$bundle_dir/Contents/Info.plist"
 bundle_binary="$bundle_dir/Contents/MacOS/OpenIslandApp"
 
@@ -36,8 +36,8 @@ fi
 mkdir -p "$bundle_dir/Contents/MacOS" "$bundle_dir/Contents/Helpers" "$bundle_dir/Contents/Resources" "$bundle_dir/Contents/Frameworks"
 
 # Kill any running instance before copying so the binary isn't locked.
-osascript -e 'tell application "Open Island Dev" to quit' 2>/dev/null || true
-pkill -9 -f "Open Island Dev" 2>/dev/null || true
+osascript -e 'tell application "Poke Island" to quit' 2>/dev/null || true
+pkill -9 -f "Poke Island" 2>/dev/null || true
 sleep 2
 
 command cp "$app_binary" "$bundle_binary"
@@ -74,7 +74,7 @@ cat > "$plist_path" <<EOF
     <key>CFBundleExecutable</key>
     <string>OpenIslandApp</string>
     <key>CFBundleIdentifier</key>
-    <string>app.openisland.dev</string>
+    <string>app.pokeisland.dev</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleIconFile</key>
@@ -131,8 +131,8 @@ fi
 # identity locally with zero Apple Developer Program involvement.
 sign_identity="-"
 if security find-identity -p codesigning -v "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null \
-       | grep -q '"Open Island Dev Local"'; then
-    sign_identity="Open Island Dev Local"
+       | grep -q '"Poke Island Local"'; then
+    sign_identity="Poke Island Local"
 else
     echo
     echo "⚠ Using ad-hoc signing. macOS TCC grants (Accessibility, Automation)"

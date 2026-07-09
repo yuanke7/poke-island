@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
-    echo "Open Island smoke runs only on macOS." >&2
+    echo "Poke Island smoke runs only on macOS." >&2
     exit 1
 fi
 

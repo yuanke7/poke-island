@@ -16,7 +16,7 @@ _[tool: questions_v2]_
 
 _[tool: web_fetch]_
 
-Got it. This is Open Island — an open-source macOS companion for AI coding agents (Claude Code, Codex) that lives in the notch/top bar. The current brand uses a cat icon.
+Got it. This is Poke Island — an open-source macOS companion for AI coding agents (Claude Code, Codex) that lives in the notch/top bar. The current brand uses a cat icon.
 
 Before I dive in, let me ask a few quick questions to make sure we're aligned on direction — since "redesign all icons, logo, and animations" is a big scope.
 
@@ -41,7 +41,7 @@ _[tool: set_project_title]_
 
 Let me think through the design system before building.
 
-**Project:** Open Island — open-source macOS companion that lives in the notch, watches AI coding agents (Claude Code, Codex) across terminals (Terminal.app, Ghostty, cmux, Kaku, WezTerm).
+**Project:** Poke Island — open-source macOS companion that lives in the notch, watches AI coding agents (Claude Code, Codex) across terminals (Terminal.app, Ghostty, cmux, Kaku, WezTerm).
 
 **My design system (committed):**
 
@@ -63,7 +63,7 @@ _[tool: write_file]_
 
 ## Assistant
 
-Let me design an original exploration for Open Island. I'll commit to the aesthetic direction up front:
+Let me design an original exploration for Poke Island. I'll commit to the aesthetic direction up front:
 
 **System:**
 - **Direction A — Liquid Glass:** Gradient-filled rounded squircle, fluid blob morphs, spring physics. Palette: deep indigo → magenta → cyan flow.
@@ -98,7 +98,7 @@ _[tool: snip]_
 
 _[tool: fork_verifier_agent]_
 
-Open Island 的品牌重设计已经完成,交付在 **`Open Island — Brand Redesign.html`**。
+Poke Island 的品牌重设计已经完成,交付在 **`Poke Island — Brand Redesign.html`**。
 
 **内容概览:**
 - **3 套完整视觉方向** 可实时切换:A=Liquid Glass(Apple 原生感)/ B=Pixel 8-bit(CRT 复古)/ C=Terminal ASCII(等宽纸笔)
@@ -287,7 +287,7 @@ _[tool: fork_verifier_agent]_
 
 已重做,专注在 **logo 和 app icon** 上 — 砍掉所有不必要的东西。
 
-**交付:`Open Island — Logo v3.html`**
+**交付:`Poke Island — Logo v3.html`**
 
 6 个围绕"药丸 / notch 形"的极简方向:
 - **M1 · Pure Pill** — 只有一枚药丸,最克制
@@ -327,7 +327,7 @@ _[tool: done]_
 
 _[tool: fork_verifier_agent]_
 
-**`Open Island — Logo v4.html`** 已交付。
+**`Poke Island — Logo v4.html`** 已交付。
 
 专注在你给高分的两个方向:
 - **P1–P8 (Pill 修饰)**:Seam / Dot / Tick / Chevron / Ring / Split / Bite / Under — 每个只加一个元素,保持 pill 的克制
@@ -362,7 +362,7 @@ _[tool: done]_
 
 _[tool: fork_verifier_agent]_
 
-**`Open Island — Logo v5.html`** 已交付。
+**`Poke Island — Logo v5.html`** 已交付。
 
 核心思路:logo 左侧的符号 = notch idle 状态。7 个候选符号(Chevron / Dot / Tick / Bracket / $ Prompt / Bars / Triangle),每个都给你看完整链路 — **notch 在 5 个状态的表现 · 纯 logo · app icon · 菜单栏落地**。
 
@@ -400,7 +400,7 @@ _[tool: done]_
 
 _[tool: fork_verifier_agent]_
 
-**`Open Island — v6.html`** 已交付。
+**`Poke Island — v6.html`** 已交付。
 
 重新切了思路:
 - **Notch = 动态系统**:8 种状态组合展示(idle / running / thinking / waiting / done / error),左=状态,中=label(agent / session),右=session count 或 agent 颜色点或等待时间
@@ -560,7 +560,7 @@ _[tool: snip]_
 
 _[tool: fork_verifier_agent]_
 
-**`Open Island — Logo v7.html`** 已交付。
+**`Poke Island — Logo v7.html`** 已交付。
 
 Rest state 精简到只剩 I(Pulse line)和 M(Breathing bar)。Logo 从这两者派生:
 - **从 I 派生**(线 + 点):L1 Beacon · L2 Horizon · L3 Traveler

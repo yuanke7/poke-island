@@ -231,7 +231,7 @@ _[tool: done]_
 
 _[tool: fork_verifier_agent]_
 
-v8 final 已就位 — `Open Island - v8 (final).html`
+v8 final 已就位 — `Poke Island - v8 (final).html`
 
 要点:
 - **Pill 即产品**:notch / 会话面板 / 通知 / control center 全是同一形状的不同状态
@@ -497,10 +497,10 @@ _[tool: done]_
 
 _[tool: list_files]_
 
-那个 ID 是当前项目的 design-system,不是 Open Island 仓库。我手上没有 Open Island 仓库的访问入口。能麻烦你做以下两件事之一:
+那个 ID 是当前项目的 design-system,不是 Poke Island 仓库。我手上没有 Poke Island 仓库的访问入口。能麻烦你做以下两件事之一:
 
 1. 把 README 里的 supported agents 列表(全名 + CLI 命令)直接贴给我
-2. 或者把 Open Island 的 GitHub 仓库 URL 发给我,我去拉
+2. 或者把 Poke Island 的 GitHub 仓库 URL 发给我,我去拉
 
 ## User
 

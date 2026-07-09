@@ -128,15 +128,16 @@ enum OverlayDisplayResolver {
             return (screens[0], "manual missing, first-display fallback")
         }
 
-        if let notchScreen = screens.first(where: isNotched) {
-            return (notchScreen, "automatic")
+        let mouseLocation = NSEvent.mouseLocation
+        if let mouseScreen = screens.first(where: { NSMouseInRect(mouseLocation, $0.frame, false) }) {
+            return (mouseScreen, "automatic · pointer")
         }
 
         if let mainScreen = NSScreen.main {
-            return (mainScreen, "automatic")
+            return (mainScreen, "automatic · main fallback")
         }
 
-        return (screens[0], "automatic")
+        return (screens[0], "automatic · first-display fallback")
     }
 
     private static func placementMode(for screen: NSScreen) -> OverlayPlacementMode {

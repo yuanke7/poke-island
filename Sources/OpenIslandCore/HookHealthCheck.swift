@@ -18,7 +18,7 @@ public struct HookHealthReport: Equatable, Sendable {
         case configMalformedJSON(path: String)
         /// The command path recorded in the config doesn't point to an existing binary.
         case staleCommandPath(recorded: String, configPath: String)
-        /// Other hooks detected alongside Open Island hooks (informational).
+        /// Other hooks detected alongside Poke Island hooks (informational).
         case otherHooksDetected(names: [String])
         /// The manifest file is missing even though hooks appear installed.
         case manifestMissing(expectedPath: String)
@@ -301,7 +301,7 @@ public enum HookHealthCheck {
                 for hook in hookEntries {
                     guard let command = hook["command"] as? String else { continue }
 
-                    // Only check Open Island / Vibe Island commands
+                    // Only check Poke Island / Vibe Island commands
                     let normalized = command.lowercased()
                     guard normalized.contains("openislandhooks") || normalized.contains("vibeislandhooks")
                         || normalized.contains("open-island") || normalized.contains("vibe-island") else {
@@ -323,7 +323,7 @@ public enum HookHealthCheck {
         return staleCommands
     }
 
-    /// Finds third-party (non-Open Island) hook command names for display.
+    /// Finds third-party (non-Poke Island) hook command names for display.
     private static func findThirdPartyHookNames(in data: Data, agent: String) -> [String] {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let hooks = root["hooks"] as? [String: Any] else {
@@ -340,7 +340,7 @@ public enum HookHealthCheck {
                     guard let command = hook["command"] as? String else { continue }
                     let normalized = command.lowercased()
 
-                    // Skip Open Island / Vibe Island hooks
+                    // Skip Poke Island / Vibe Island hooks
                     if normalized.contains("openislandhooks") || normalized.contains("vibeislandhooks")
                         || normalized.contains("open-island") || normalized.contains("vibe-island") {
                         continue
@@ -386,7 +386,7 @@ public enum HookHealthCheck {
         return false
     }
 
-    /// Checks whether any Open Island managed hooks exist in a config file.
+    /// Checks whether any Poke Island managed hooks exist in a config file.
     private static func hasOpenIslandHooks(in url: URL, fileManager: FileManager) -> Bool {
         guard let data = try? Data(contentsOf: url),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],

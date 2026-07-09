@@ -422,7 +422,7 @@ function V7App() {
   return (
     <div className="app v3">
       <header className="topbar">
-        <div className="brand"><span className="dot-v3"/><span>Open Island · v7 — pill as panel</span></div>
+        <div className="brand"><span className="dot-v3"/><span>Poke Island · v7 — pill as panel</span></div>
         <span className="meta mono">// 所有模块都是 notch 的延伸</span>
         <div className="spacer"/>
       </header>

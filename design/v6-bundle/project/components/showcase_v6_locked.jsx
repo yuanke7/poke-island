@@ -109,7 +109,7 @@ function V6Showcase() {
   return (
     <div className="app v3">
       <header className="topbar">
-        <div className="brand"><span className="dot-v3" /><span>Open Island · v6 — dynamic notch, extracted logo</span></div>
+        <div className="brand"><span className="dot-v3" /><span>Poke Island · v6 — dynamic notch, extracted logo</span></div>
         <span className="meta mono">// notch = live · logo = signature</span>
         <div className="spacer" />
       </header>

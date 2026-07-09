@@ -4,7 +4,7 @@ import Testing
 /// Verifies the per-process hook skip environment contract.
 /// 验证单次子进程 hook 跳过环境变量协议。
 struct HookSkipConfigurationTests {
-    /// Accepts common truthy spellings for the preferred Open Island key.
+    /// Accepts common truthy spellings for the preferred Poke Island key.
     /// 推荐的新环境变量接受常见真值写法。
     @Test
     func openIslandSkipHooksAcceptsTruthyValues() {

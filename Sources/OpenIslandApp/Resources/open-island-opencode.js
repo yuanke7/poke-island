@@ -1,5 +1,5 @@
-// Open Island plugin for OpenCode
-// Bridges OpenCode events to the Open Island desktop app via Unix socket.
+// Poke Island plugin for OpenCode
+// Bridges OpenCode events to the Poke Island desktop app via Unix socket.
 // Install: copy to ~/.config/opencode/plugins/open-island.js
 import { connect } from "net";
 import { appendFileSync } from "fs";
@@ -367,7 +367,7 @@ export default async ({ client, serverUrl }) => {
         // Regular events — fire and forget
         await sendToSocket(mapped);
       } catch {
-        // Fail open: if Open Island is unavailable, don't block OpenCode
+        // Fail open: if Poke Island is unavailable, don't block OpenCode
       }
     },
 

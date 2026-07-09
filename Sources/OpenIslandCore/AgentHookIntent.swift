@@ -12,7 +12,7 @@ public enum AgentHookIntent: String, Codable, Sendable, CaseIterable {
     case uninstalled
 }
 
-/// Canonical identifier for every agent whose hooks Open Island manages.
+/// Canonical identifier for every agent whose hooks Poke Island manages.
 ///
 /// Raw values are stable on-disk keys (used in UserDefaults); do not rename
 /// existing cases without a migration.

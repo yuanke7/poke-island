@@ -172,7 +172,7 @@ struct ActiveAgentProcessDiscoveryTests {
 
     /// VS Code forks (Cursor, Windsurf, Trae, Qoder) bundle Electron's "Code
     /// Helper" inside their .app bundles. Their helper paths therefore contain
-    /// both "/<fork>.app/" and "/code helper", and Open Island used to match
+    /// both "/<fork>.app/" and "/code helper", and Poke Island used to match
     /// the broad "/code helper" check first → mis-attributed every fork to
     /// stock VS Code (#415). Verify each fork is recognized correctly.
     @Test(arguments: [

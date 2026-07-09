@@ -24,7 +24,7 @@ public struct KimiHookFileMutation: Equatable, Sendable, Codable {
     }
 }
 
-/// Installs/uninstalls Open Island's managed `[[hooks]]` entries in
+/// Installs/uninstalls Poke Island's managed `[[hooks]]` entries in
 /// `~/.kimi/config.toml`.
 ///
 /// Kimi CLI's hook protocol is byte-compatible with Claude Code (same stdin
@@ -99,7 +99,7 @@ public enum KimiHookInstaller {
     /// Removes every managed `[[hooks]]` block. Identification prefers the
     /// marker comment (precise) and falls back to a command-value match for
     /// entries that were installed before the marker existed or by a prior
-    /// Open Island / Vibe Island build.
+    /// Poke Island / Vibe Island build.
     private static func stripManagedBlocks(from contents: String, managedCommand: String?) -> String {
         let lines = contents.components(separatedBy: "\n")
         var result: [String] = []
@@ -184,7 +184,7 @@ public enum KimiHookInstaller {
     }
 
     /// Best-effort decode of a TOML basic or literal string. Full TOML
-    /// escape handling is unnecessary — Open Island only ever writes paths,
+    /// escape handling is unnecessary — Poke Island only ever writes paths,
     /// which never contain control characters.
     private static func tomlStringValue(_ raw: String) -> String {
         var value = raw

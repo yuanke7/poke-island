@@ -66,12 +66,12 @@ Keep all work incremental, reviewable, and reversible. Every meaningful round of
 
 - Treat the repository executable product `OpenIslandApp` as the canonical OSS app runtime.
 - Treat `swift run OpenIslandApp` and the Xcode app target as the source-of-truth way to run the current branch's app code.
-- Treat `~/Applications/Open Island Dev.app` as a local development bundle wrapper around the repo-built `OpenIslandApp`, not as a separate product line.
-- Use `Open Island Dev.app` for manual OSS app verification when bundle semantics, LaunchServices, or installed-hook behavior matter.
-- When the user asks to launch or restart `Open Island Dev.app`, refresh the bundle from the current repo first with `zsh scripts/launch-dev-app.sh` instead of only running `open -na`. Opening the bundle alone can relaunch a stale binary.
+- Treat `~/Applications/Poke Island.app` as a local development bundle wrapper around the repo-built `OpenIslandApp`, not as a separate product line.
+- Use `Poke Island.app` for manual OSS app verification when bundle semantics, LaunchServices, or installed-hook behavior matter.
+- When the user asks to launch or restart `Poke Island.app`, refresh the bundle from the current repo first with `zsh scripts/launch-dev-app.sh` instead of only running `open -na`. Opening the bundle alone can relaunch a stale binary.
 - For work that touches Accessibility, Automation, precision jump, or other macOS TCC-sensitive behavior, run `zsh scripts/setup-dev-signing.sh` once before repeated manual verification so the dev bundle keeps a stable local signing identity.
 - Use `scripts/harness.sh smoke` or `scripts/smoke-dev-app.sh` only for deterministic harness runs; those commands intentionally launch the repo executable directly rather than the installed dev bundle.
-- Treat any in-app label such as `Open Island OSS` as UI copy only, not as evidence of a third app target.
+- Treat any in-app label such as `Poke Island` as UI copy only, not as evidence of a third app target.
 - Build, debug, and verify OSS changes against `OpenIslandApp`. Treat `/Applications/Vibe Island.app` and `https://vibeisland.app/` as reference baselines only when comparison is explicitly needed.
 
 ## Verification

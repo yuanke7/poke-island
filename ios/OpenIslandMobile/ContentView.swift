@@ -18,7 +18,7 @@ struct ContentView: View {
             .refreshable {
                 await refreshStatus()
             }
-            .navigationTitle("Open Island")
+            .navigationTitle("Poke Island")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink {

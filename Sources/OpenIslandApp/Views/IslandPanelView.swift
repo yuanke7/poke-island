@@ -186,6 +186,9 @@ struct IslandPanelView: View {
         .onChange(of: model.displayRevealGeneration) { _, _ in
             runDisplayReveal()
         }
+        .onChange(of: model.displayRetreatGeneration) { _, _ in
+            runDisplayRetreat()
+        }
     }
 
     @ViewBuilder
@@ -242,6 +245,12 @@ struct IslandPanelView: View {
         }
         withAnimation(.spring(response: model.islandOpenAnimationDuration, dampingFraction: 0.9)) {
             displayRevealProgress = 1
+        }
+    }
+
+    private func runDisplayRetreat() {
+        withAnimation(.spring(response: model.islandCloseAnimationDuration, dampingFraction: 0.92)) {
+            displayRevealProgress = 0
         }
     }
 

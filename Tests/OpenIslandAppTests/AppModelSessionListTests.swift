@@ -675,6 +675,16 @@ struct AppModelSessionListTests {
     }
 
     @Test
+    func displayRetreatGenerationAdvancesWhenTriggered() {
+        let model = AppModel()
+        let initial = model.displayRetreatGeneration
+
+        model.triggerDisplayRetreat()
+
+        #expect(model.displayRetreatGeneration == initial + 1)
+    }
+
+    @Test
     func completionNotificationUsesHoverPointerExitCollapse() {
         let model = AppModel()
         model.isSoundMuted = true

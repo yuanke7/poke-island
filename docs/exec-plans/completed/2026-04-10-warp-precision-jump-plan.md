@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** When a user clicks jump on a Warp-hosted Claude or Codex session in Open Island, automatically focus the exact Warp tab running that session (one click, no manual tab scanning).
+**Goal:** When a user clicks jump on a Warp-hosted Claude or Codex session in Poke Island, automatically focus the exact Warp tab running that session (one click, no manual tab scanning).
 
 **Architecture:** Read Warp's live SQLite state (`~/Library/Group Containers/2BBY89MBSN.dev.warp/Library/Application Support/dev.warp.Warp-Stable/warp.sqlite`, WAL mode, already empirically confirmed live-updated) to (a) discover each session's `pane_uuid` at hook time and (b) detect the currently-focused pane at jump time. When the target pane isn't focused, send `Cmd+Shift+]` via `CGEventPost` in a bounded loop, re-reading SQLite between each press until the target pane is focused or we exhaust the retry cap.
 
@@ -1531,11 +1531,11 @@ swift build 2>&1 | tail -5
 swift run OpenIslandApp &
 ```
 
-If `/Applications/Open Island.app` is running, quit it first (`osascript -e 'quit app "Open Island"'`) so there's no bridge-socket collision.
+If `/Applications/Poke Island.app` is running, quit it first (`osascript -e 'quit app "Poke Island"'`) so there's no bridge-socket collision.
 
 - [ ] **Step 2: Grant Accessibility permission**
 
-Open **System Settings → Privacy & Security → Accessibility**. If `OpenIslandApp` is listed, toggle it on. If not, trigger a jump attempt from Open Island first (which will cause macOS to add it to the list) and come back.
+Open **System Settings → Privacy & Security → Accessibility**. If `OpenIslandApp` is listed, toggle it on. If not, trigger a jump attempt from Poke Island first (which will cause macOS to add it to the list) and come back.
 
 - [ ] **Step 3: Set up the multi-tab scenario**
 
@@ -1549,7 +1549,7 @@ Open **System Settings → Privacy & Security → Accessibility**. If `OpenIslan
 
 - [ ] **Step 4: Verify precision jump**
 
-1. Open Open Island's session list (notch / top-bar).
+1. Open Poke Island's session list (notch / top-bar).
 2. Identify the session corresponding to tab #1 (by workspace name).
 3. Click the jump affordance for that session.
 4. **Expected**:
@@ -1561,14 +1561,14 @@ Open **System Settings → Privacy & Security → Accessibility**. If `OpenIslan
 - [ ] **Step 5: Verify the already-at-target fast path**
 
 1. With a Claude session tab already focused in Warp, switch to a different app (Finder).
-2. In Open Island, click jump for that same session.
+2. In Poke Island, click jump for that same session.
 3. **Expected**: Warp activates, no tab flicker (zero keystrokes), lands directly because `warpFocusedPaneReader` saw an immediate match.
 
 - [ ] **Step 6: Verify fallbacks**
 
-1. **No permission**: temporarily disable OpenIslandApp in System Settings → Accessibility. Click jump. Expected: Warp activates, no cycling, Open Island toast/log says "Grant Accessibility permission to enable precision jump."
+1. **No permission**: temporarily disable OpenIslandApp in System Settings → Accessibility. Click jump. Expected: Warp activates, no cycling, Poke Island toast/log says "Grant Accessibility permission to enable precision jump."
 2. **Re-enable permission** and continue.
-3. **Close a Claude tab** while the session is still in Open Island's list. Click jump for the closed session. Expected: cycling runs the full cap, then returns "Activated Warp but could not confirm precision focus." — never crashes.
+3. **Close a Claude tab** while the session is still in Poke Island's list. Click jump for the closed session. Expected: cycling runs the full cap, then returns "Activated Warp but could not confirm precision focus." — never crashes.
 
 - [ ] **Step 7: Run full test suite once more**
 

@@ -19,6 +19,7 @@ INTERNAL_TEMPLATE_DIR = BRAND_ROOT / "Internal" / "template"
 INTERNAL_BADGE_DIR = BRAND_ROOT / "Internal" / "badge"
 ICNS_PATH = BRAND_ROOT / "OpenIsland.icns"
 SVG_MASTER_PATH = BRAND_ROOT / "scout-app-icon-master.svg"
+POKE_BALL_PATH = REPO_ROOT / "Sources" / "OpenIslandApp" / "Resources" / "BootDance" / "pixel-monster-ball.png"
 
 SCOUT_PATTERN = [
     "..B..B..",
@@ -288,17 +289,33 @@ def render_badge(size: int) -> Image.Image:
     return image
 
 
-def write_app_icons() -> None:
-    # v6 Bar+Dot master is the sole source. Run
-    # `swift scripts/generate-v6-appicon.swift` if it's missing.
-    source_path = BRAND_ROOT / "app-icon-v6.png"
-    if not source_path.exists():
-        raise SystemExit(
-            f"missing brand master at {source_path.relative_to(REPO_ROOT)} — "
-            "run `swift scripts/generate-v6-appicon.swift` first"
-        )
+def render_poke_app_icon(size: int) -> Image.Image:
+    image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    plate = Image.new("RGBA", (size, size), rgba("#f1ead9"))
+    plate_mask = rounded_mask((size, size), round(size * 0.225))
+    paste_masked(image, plate, (0, 0), plate_mask)
 
-    src = Image.open(source_path).convert("RGBA")
+    ring = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    ring_draw = ImageDraw.Draw(ring)
+    ring_draw.rounded_rectangle(
+        (0, 0, size - 1, size - 1),
+        radius=round(size * 0.225),
+        outline=(0, 0, 0, 15),
+        width=max(1, round(size / 1024)),
+    )
+    image.alpha_composite(ring)
+
+    ball = Image.open(POKE_BALL_PATH).convert("RGBA")
+    mark_size = round(size * 0.72)
+    ball = ball.resize((mark_size, mark_size), Image.Resampling.NEAREST)
+    offset = ((size - mark_size) // 2, (size - mark_size) // 2)
+    image.alpha_composite(ball, offset)
+    return image
+
+
+def write_app_icons() -> None:
+    src = render_poke_app_icon(1024)
+    src.save(BRAND_ROOT / "app-icon-v6.png")
     for filename, _, _, pixel_size in APP_ICON_SPECS:
         canvas = Image.new("RGBA", (pixel_size, pixel_size), (0, 0, 0, 0))
         content_size = max(1, round(pixel_size * MACOS_ICON_CONTENT_RATIO))
@@ -333,7 +350,7 @@ def write_appiconset_contents_json(path: Path) -> None:
     contents = {
         "images": images,
         "info": {
-            "author": "app.openisland.dev",
+            "author": "app.pokeisland.dev",
             "version": 1,
         },
     }

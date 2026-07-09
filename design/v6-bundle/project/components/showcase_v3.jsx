@@ -35,7 +35,7 @@ function V3Showcase() {
   return (
     <div className="app v3">
       <header className="topbar">
-        <div className="brand"><span className="dot-v3" /><span>Open Island · Logo v3</span></div>
+        <div className="brand"><span className="dot-v3" /><span>Poke Island · Logo v3</span></div>
         <span className="meta mono">// 药丸 + notch · 极简 · 纯黑白 / 暖米</span>
         <div className="spacer" />
         <span className="chip">tone: {effTone}</span>
@@ -127,7 +127,7 @@ function V3Showcase() {
             {variants.map(v => (
               <div key={v.id} className="finder-item">
                 <v.App size={88} tone={effTone} />
-                <div className="finder-name">Open Island<br /><span className="mono">{v.id}</span></div>
+                <div className="finder-name">Poke Island<br /><span className="mono">{v.id}</span></div>
               </div>
             ))}
           </div>

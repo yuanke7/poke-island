@@ -52,7 +52,7 @@ function Showcase() {
       <header className="topbar">
         <div className="brand">
           <span className="dot" />
-          <span>Open Island — Brand Redesign</span>
+          <span>Poke Island — Brand Redesign</span>
         </div>
         <span className="meta mono">v0.1 · 3 directions · 20 components</span>
         <div className="spacer" />
@@ -96,7 +96,7 @@ function Showcase() {
             <div className="line" />
           </div>
           <div className="assumption">
-            Open Island is a <b>control surface</b>, not an app you stare at. The identity lives in the notch — tiny by default, expands on demand. <b>After review you picked a hybrid</b>: Liquid Glass for the notch & motion (native, expressive), ASCII for the icons & status (legible, developer-native, rich at 16px). That combo is now the default — other presets remain for comparison.
+            Poke Island is a <b>control surface</b>, not an app you stare at. The identity lives in the notch — tiny by default, expands on demand. <b>After review you picked a hybrid</b>: Liquid Glass for the notch & motion (native, expressive), ASCII for the icons & status (legible, developer-native, rich at 16px). That combo is now the default — other presets remain for comparison.
             <div className="grid-4" style={{ marginTop: 14 }}>
               <DirCard k="hybrid" name="Hybrid ★" sub="Liquid notch + ASCII icons. The picked combo." active={preset === 'hybrid'} onClick={() => setPreset('hybrid')} />
               <DirCard k="A" name="Liquid Glass" sub="All liquid. Apple-native, expressive." active={preset === 'A'} onClick={() => setPreset('A')} />

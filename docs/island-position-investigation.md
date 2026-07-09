@@ -4,7 +4,7 @@ Reviewed on 2026-04-02 in worktree `../open-island-island-investigate` on branch
 
 ## Question
 
-Why does the current open-source island feel "off" compared with the official Open Island behavior on a MacBook with a built-in notch?
+Why does the current open-source island feel "off" compared with the official Poke Island behavior on a MacBook with a built-in notch?
 
 ## Short Answer
 

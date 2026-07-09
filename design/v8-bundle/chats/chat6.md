@@ -18,7 +18,7 @@ _[tool: read_file]_
 
 _[tool: read_file]_
 
-I'll note the system reminder: I'll create original designs for Open Island (the user's own project), not recreate any branded UI from elsewhere.
+I'll note the system reminder: I'll create original designs for Poke Island (the user's own project), not recreate any branded UI from elsewhere.
 
 Let me explore the components and the GitHub repo.
 
@@ -60,7 +60,7 @@ Good, I have enough now. Let me plan the v8 design.
 
 _[tool: snip]_
 
-Now let me write the v8 design. I'll create a comprehensive system grounded in the actual Open Island project (Claude Code + Codex agents; Terminal/Ghostty/cmux/Kaku/WezTerm full support; iTerm2/Warp partial; hook events; usage windows; MacBook notch + external).
+Now let me write the v8 design. I'll create a comprehensive system grounded in the actual Poke Island project (Claude Code + Codex agents; Terminal/Ghostty/cmux/Kaku/WezTerm full support; iTerm2/Warp partial; hook events; usage windows; MacBook notch + external).
 
 I'll keep v8 in a single styles file extending v7's styles, and a single component file.
 

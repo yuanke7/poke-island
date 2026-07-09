@@ -9,7 +9,7 @@ struct ClaudeHooksTests {
         let output = try ClaudeHookOutputEncoder.standardOutput(
             for: .claudeHookDirective(
                 .permissionRequest(
-                    .deny(message: "Permission denied in Open Island.", interrupt: true)
+                    .deny(message: "Permission denied in Poke Island.", interrupt: true)
                 )
             )
         )
@@ -21,7 +21,7 @@ struct ClaudeHooksTests {
 
         #expect(hookSpecificOutput?["hookEventName"] as? String == "PermissionRequest")
         #expect(decision?["behavior"] as? String == "deny")
-        #expect(decision?["message"] as? String == "Permission denied in Open Island.")
+        #expect(decision?["message"] as? String == "Permission denied in Poke Island.")
         #expect(decision?["interrupt"] as? Bool == true)
     }
 

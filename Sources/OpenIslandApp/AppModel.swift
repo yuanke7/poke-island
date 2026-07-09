@@ -227,6 +227,7 @@ final class AppModel {
         set { overlay.overlayPlacementDiagnostics = newValue }
     }
     var displayRevealGeneration: UInt64 { overlay.displayRevealGeneration }
+    var displayRetreatGeneration: UInt64 { overlay.displayRetreatGeneration }
     var showDockIcon: Bool = false {
         didSet {
             guard hasFinishedInit, showDockIcon != oldValue else { return }
@@ -1272,6 +1273,7 @@ final class AppModel {
     func refreshOverlayPlacement() { overlay.refreshOverlayPlacement() }
     private func refreshOverlayPlacementIfVisible() { overlay.refreshOverlayPlacementIfVisible() }
     func triggerDisplayReveal() { overlay.triggerDisplayReveal() }
+    func triggerDisplayRetreat() { overlay.triggerDisplayRetreat() }
     func notePointerInsideIslandSurface() { overlay.notePointerInsideIslandSurface() }
     func handlePointerExitedIslandSurface() { overlay.handlePointerExitedIslandSurface() }
     private func presentNotificationSurface(_ surface: IslandSurface) { overlay.presentNotificationSurface(surface) }
@@ -1422,7 +1424,7 @@ final class AppModel {
 
         switch action {
         case .deny:
-            resolution = .deny(message: "Permission denied in Open Island.", interrupt: false)
+            resolution = .deny(message: "Permission denied in Poke Island.", interrupt: false)
             message = "Denying permission for \(session.title)."
         case .allowOnce:
             resolution = .allowOnce()
@@ -1512,7 +1514,7 @@ final class AppModel {
             return .allowOnce()
         }
 
-        return .deny(message: "Permission denied in Open Island.", interrupt: false)
+        return .deny(message: "Permission denied in Poke Island.", interrupt: false)
     }
 
     func applyTrackedEvent(

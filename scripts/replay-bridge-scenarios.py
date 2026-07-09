@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Replay bridge events into a running Open Island dev app.
+Replay bridge events into a running Poke Island dev app.
 
 This is a manual UI verification helper.  It sends realistic bridge commands
 over the same Unix socket used by hook clients.  Permission/question events keep
@@ -418,7 +418,7 @@ def hold_interaction(
     with connect_bridge(socket_path) as sock:
         sock.sendall(line.encode("utf-8") + b"\n")
         print(f"  sent {label}; keeping hook connected until UI resolution")
-        print("  answer the card in Open Island, or press Ctrl-C to cancel")
+        print("  answer the card in Poke Island, or press Ctrl-C to cancel")
         return recv_response(sock, timeout)
 
 
@@ -464,7 +464,7 @@ def replay_one(
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Replay Open Island bridge scenarios into the running dev app."
+        description="Replay Poke Island bridge scenarios into the running dev app."
     )
     parser.add_argument(
         "scenario",
@@ -541,7 +541,7 @@ def main() -> int:
     if args.dry_run:
         print("Dry run complete.")
     else:
-        print("Replay complete. Inspect the Open Island overlay.")
+        print("Replay complete. Inspect the Poke Island overlay.")
     return 0
 
 

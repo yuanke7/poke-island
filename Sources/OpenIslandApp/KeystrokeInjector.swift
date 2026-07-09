@@ -49,7 +49,7 @@ public protocol KeystrokeInjector {
 /// the "Activated Warp but could not confirm precision focus" message.
 ///
 /// Permission: The Accessibility permission the user grants to the
-/// Open Island host app authorizes `click menu item` on other
+/// Poke Island host app authorizes `click menu item` on other
 /// processes. Automation permission for `System Events` is also
 /// required on the first call; macOS presents its standard consent
 /// prompt.

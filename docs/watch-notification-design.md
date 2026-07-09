@@ -374,7 +374,7 @@ let permissionCategory = UNNotificationCategory(
 
 1. **iOS app 审核** — 需要足够的 UI 内容。方案：最近通知历史列表 + 设置页 + 连接状态页。
 2. **后台 SSE 连接** — iPhone app 在后台时 SSE 长连接可能被系统断开。需要处理重连逻辑，以及评估是否需要 Background Modes（如 `background fetch` 或 `remote notifications`）。
-3. **多 Mac 发现** — 同一 WiFi 下多台 Mac 运行 Open Island 时，Bonjour 会发现多个服务。iPhone 列出设备名让用户选择并配对，token 机制确保后续自动连接正确的 Mac。
+3. **多 Mac 发现** — 同一 WiFi 下多台 Mac 运行 Poke Island 时，Bonjour 会发现多个服务。iPhone 列出设备名让用户选择并配对，token 机制确保后续自动连接正确的 Mac。
 4. **Xcode 项目结构** — 当前项目用 Swift Package Manager，iOS target 需要 Xcode project 或 workspace。需评估是在 Package.swift 中添加还是单独建 Xcode project。
 5. **局域网权限** — iOS 14+ 首次访问局域网时会弹出权限请求，需要在 Info.plist 中声明 `NSLocalNetworkUsageDescription` 和 Bonjour 服务类型。
 

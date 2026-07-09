@@ -1,6 +1,6 @@
 <svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Open Island</title>
-  <desc id="desc">Open Island wordmark with the v6 Bar + Dot logo and the tagline agents in your menu bar.</desc>
+  <title id="title">Poke Island</title>
+  <desc id="desc">Poke Island wordmark with the v6 Bar + Dot logo and the tagline agents in your menu bar.</desc>
   <defs>
     <filter id="paper-shadow" x="76" y="28" width="1048" height="304" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feDropShadow dx="0" dy="20" stdDeviation="26" flood-color="#0D0D0F" flood-opacity="0.14"/>
@@ -25,7 +25,7 @@
     </g>
 
     <g transform="translate(498 111)">
-      <text x="0" y="75" fill="#0D0D0F" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="76" font-weight="760">Open Island</text>
+      <text x="0" y="75" fill="#0D0D0F" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="76" font-weight="760">Poke Island</text>
       <text x="3" y="127" fill="#0D0D0F" fill-opacity="0.56" font-family="'SF Mono', 'JetBrains Mono', ui-monospace, monospace" font-size="25" font-weight="500">agents in your menu bar</text>
     </g>
   </g>

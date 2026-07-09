@@ -591,7 +591,7 @@ function AgentsGridShowcase() {
   return (
     <div className="app v3 ag-app">
       <header className="topbar">
-        <div className="brand"><span className="dot-v3" /><span>Open Island · v6 — agents grid redesign</span></div>
+        <div className="brand"><span className="dot-v3" /><span>Poke Island · v6 — agents grid redesign</span></div>
         <span className="meta mono">// right-slot square-matrix exploration</span>
         <div className="spacer" />
         <div className="ctrl-row" style={{ gap: 4 }}>

@@ -12,7 +12,7 @@ struct ContentView: View {
                     eventList
                 }
             }
-            .navigationTitle("Open Island")
+            .navigationTitle("Poke Island")
         }
     }
 

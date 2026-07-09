@@ -2,9 +2,9 @@
 
 <strong>中文</strong> | <a href="roadmap.md">English</a>
 
-Open Island 由社区驱动。我们相信最好的产品体验会由每个工具的深度用户创造。欢迎任何形式的贡献——选一个你感兴趣的方向，开始 vibe。
+Poke Island 由社区驱动。我们相信最好的产品体验会由每个工具的深度用户创造。欢迎任何形式的贡献——选一个你感兴趣的方向，开始 vibe。
 
-你可以认为 Open Island 做了那些最基础的事：一个 mac island 的壳子 + code agent 通信层 + 基础的功能如通知/终端跳转，其他的一切都可以由你定义。
+你可以认为 Poke Island 做了那些最基础的事：一个 mac island 的壳子 + code agent 通信层 + 基础的功能如通知/终端跳转，其他的一切都可以由你定义。
 
 当然你也可以 fork 自己的版本并任意改造，不过 PR 到这里有机会让它被更多人使用（btw，我们使用 GPL 协议）。
 

@@ -7,11 +7,11 @@ struct HooksBinaryLocatorTests {
     func locateFindsBundledHelperBinaryInsideAppBundle() throws {
         let rootURL = temporaryRootURL(named: "hooks-binary-locator")
         let executableDirectory = rootURL
-            .appendingPathComponent("Open Island.app", isDirectory: true)
+            .appendingPathComponent("Poke Island.app", isDirectory: true)
             .appendingPathComponent("Contents", isDirectory: true)
             .appendingPathComponent("MacOS", isDirectory: true)
         let helperBinaryURL = rootURL
-            .appendingPathComponent("Open Island.app", isDirectory: true)
+            .appendingPathComponent("Poke Island.app", isDirectory: true)
             .appendingPathComponent("Contents", isDirectory: true)
             .appendingPathComponent("Helpers", isDirectory: true)
             .appendingPathComponent("OpenIslandHooks")
@@ -35,11 +35,11 @@ struct HooksBinaryLocatorTests {
     func locateFindsLegacyBundledHelperBinaryInsideAppBundle() throws {
         let rootURL = temporaryRootURL(named: "hooks-binary-locator-legacy")
         let executableDirectory = rootURL
-            .appendingPathComponent("Open Island.app", isDirectory: true)
+            .appendingPathComponent("Poke Island.app", isDirectory: true)
             .appendingPathComponent("Contents", isDirectory: true)
             .appendingPathComponent("MacOS", isDirectory: true)
         let helperBinaryURL = rootURL
-            .appendingPathComponent("Open Island.app", isDirectory: true)
+            .appendingPathComponent("Poke Island.app", isDirectory: true)
             .appendingPathComponent("Contents", isDirectory: true)
             .appendingPathComponent("Helpers", isDirectory: true)
             .appendingPathComponent("VibeIslandHooks")

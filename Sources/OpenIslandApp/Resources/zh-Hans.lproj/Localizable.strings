@@ -34,8 +34,8 @@
 "settings.general.uninstall" = "卸载";
 "settings.general.uninstallConfirmTitle" = "确认卸载 Hooks？";
 "settings.general.uninstallConfirmAction" = "卸载";
-"settings.general.uninstallConfirmMessage.claude" = "这将从 Claude Code 中移除 Open Island 的 hooks。你可以随时重新安装。";
-"settings.general.uninstallConfirmMessage.codex" = "这将从 Codex 中移除 Open Island 的 hooks。你可以随时重新安装。";
+"settings.general.uninstallConfirmMessage.claude" = "这将从 Claude Code 中移除 Poke Island 的 hooks。你可以随时重新安装。";
+"settings.general.uninstallConfirmMessage.codex" = "这将从 Codex 中移除 Poke Island 的 hooks。你可以随时重新安装。";
 "settings.general.uninstallConfirmMessage.claudeUsage" = "这将移除 Claude 用量桥接。你可以随时重新安装。";
 "settings.general.cancel" = "取消";
 "settings.general.language" = "语言";
@@ -64,6 +64,11 @@
 "settings.appearance.centerLabel.agentAction" = "代理 · 动作";
 "settings.appearance.centerLabel.sessionName" = "会话名";
 "settings.appearance.centerLabel.off" = "关闭";
+"settings.appearance.animation.title" = "03 · 动画速度";
+"settings.appearance.animation.note" = "调整 Island 打开和收起的速度。";
+"settings.appearance.animation.open" = "打开";
+"settings.appearance.animation.close" = "收起";
+"settings.appearance.animation.seconds" = "%.2f 秒";
 "settings.appearance.notchPart.title" = "刘海";
 "settings.appearance.sessionListPart.title" = "会话列表";
 "settings.appearance.sessionPreview" = "预览";
@@ -146,10 +151,10 @@
 "setup.usageBridgeDesc" = "在本地追踪 Claude API 用量";
 "setup.optional" = "可选";
 "setup.permissionsTitle" = "辅助功能";
-"setup.permissionsDesc" = "Open Island 可能需要辅助功能权限来检测终端窗口。请在「系统设置 → 隐私与安全性 → 辅助功能」中授权。";
+"setup.permissionsDesc" = "Poke Island 可能需要辅助功能权限来检测终端窗口。请在「系统设置 → 隐私与安全性 → 辅助功能」中授权。";
 "setup.installAll" = "全部安装";
-"setup.banner.noHooks.title" = "开始使用 Open Island";
-"setup.banner.noHooks.message" = "在下方为你使用的 Agent 安装 hook，Open Island 就会开始监听对应会话。";
+"setup.banner.noHooks.title" = "开始使用 Poke Island";
+"setup.banner.noHooks.message" = "在下方为你使用的 Agent 安装 hook，Poke Island 就会开始监听对应会话。";
 "setup.revealConfigLocation" = "在 Finder 中显示配置";
 "setup.section.diagnostics" = "Hooks 诊断";
 "setup.diagnostics.notRun" = "尚未运行健康检查。";
@@ -165,8 +170,8 @@
 /* Settings - About */
 "settings.about.version" = "版本 %@";
 "settings.about.checkForUpdates" = "检查更新…";
-"settings.about.quitApp" = "退出 Open Island";
-"island.quit.confirmTitle" = "退出 Open Island？";
+"settings.about.quitApp" = "退出 Poke Island";
+"island.quit.confirmTitle" = "退出 Poke Island？";
 "island.quit.confirmAction" = "退出";
 "island.quit.confirmMessage" = "确定要退出吗？";
 
@@ -175,7 +180,7 @@
 
 /* Island Panel - Bootstrap */
 "island.checkingTerminals" = "正在检查打开的终端会话";
-"island.terminalOwnership" = "Open Island 将在确认终端归属后显示实时代理";
+"island.terminalOwnership" = "Poke Island 将在确认终端归属后显示实时代理";
 "island.noTerminals" = "没有打开的终端会话";
 "island.startAgent" = "在终端中启动编码代理";
 "island.recentSessions" = "最近的会话将保留在这里，直到终端重新打开";

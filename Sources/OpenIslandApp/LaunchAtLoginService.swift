@@ -1,7 +1,7 @@
 import Foundation
 import ServiceManagement
 
-/// Wraps `SMAppService.mainApp` for registering/unregistering Open Island as a
+/// Wraps `SMAppService.mainApp` for registering/unregistering Poke Island as a
 /// login item. `SMAppService.mainApp` is authoritative — the UI reads its
 /// status on demand so the toggle stays in sync with System Settings ->
 /// General -> Login Items changes that happen outside the app.

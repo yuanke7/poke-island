@@ -82,8 +82,8 @@ _[tool: done]_
 
 存好了 ✅
 
-- **`Open Island - v6 (locked).html`** — 独立存档,指向它自己的 locked 组件副本
+- **`Poke Island - v6 (locked).html`** — 独立存档,指向它自己的 locked 组件副本
 - **`components/showcase_v6_locked.jsx`** + **`components/notch_v6_locked.jsx`** — 冻结的当前版本
 
-以后继续迭代 v6(或开 v7)时,这份存档不会被影响。原来的 `Open Island - v6.html` 仍然是"活"的工作文件,可以继续改。
+以后继续迭代 v6(或开 v7)时,这份存档不会被影响。原来的 `Poke Island - v6.html` 仍然是"活"的工作文件,可以继续改。
 

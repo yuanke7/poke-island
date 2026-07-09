@@ -127,6 +127,7 @@ struct AppearanceSettingsPane: View {
             previewSection
             rightSlotSection
             centerLabelSection
+            animationSection
         }
     }
 
@@ -369,7 +370,69 @@ struct AppearanceSettingsPane: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - 02 · Usage
+    // MARK: - 03 · Animation
+
+    @ViewBuilder
+    private var animationSection: some View {
+        sectionHeader(
+            title: lang.t("settings.appearance.animation.title"),
+            note: lang.t("settings.appearance.animation.note")
+        )
+
+        VStack(spacing: 14) {
+            animationSlider(
+                title: lang.t("settings.appearance.animation.open"),
+                value: model.islandOpenAnimationDuration
+            ) { duration in
+                model.islandOpenAnimationDuration = duration
+            }
+
+            animationSlider(
+                title: lang.t("settings.appearance.animation.close"),
+                value: model.islandCloseAnimationDuration
+            ) { duration in
+                model.islandCloseAnimationDuration = duration
+            }
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.white.opacity(0.025))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+    }
+
+    private func animationSlider(
+        title: String,
+        value: Double,
+        onChange: @escaping (Double) -> Void
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(V6Palette.paper.opacity(0.78))
+                Spacer()
+                Text(lang.t("settings.appearance.animation.seconds", value))
+                    .font(.system(size: 11.5, weight: .medium, design: .monospaced))
+                    .foregroundStyle(V6Palette.paper.opacity(0.48))
+            }
+
+            Slider(
+                value: Binding(
+                    get: { value },
+                    set: { onChange($0) }
+                ),
+                in: 0.15...0.60,
+                step: 0.05
+            )
+        }
+    }
+
+    // MARK: - 04 · Usage
 
     @ViewBuilder
     private var usageDisplaySection: some View {

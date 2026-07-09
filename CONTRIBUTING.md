@@ -1,8 +1,8 @@
-# Contributing to Open Island
+# Contributing to Poke Island
 
 <a href="CONTRIBUTING.zh-CN.md">中文</a> | <strong>English</strong>
 
-Thank you for your interest in contributing to Open Island!
+Thank you for your interest in contributing to Poke Island!
 
 ---
 
@@ -33,14 +33,14 @@ If you run into a problem, copy the prompt below into your code agent (Claude Co
 <summary>Click to expand the prompt</summary>
 
 ```
-I'm having an issue with Open Island (https://github.com/Octane0411/open-vibe-island).
+I'm having an issue with Poke Island (https://github.com/Octane0411/open-vibe-island).
 
 Please help me file a GitHub issue. Do the following:
 
 1. Collect my environment info:
    - Run `sw_vers` to get macOS version
    - Run `swift --version` to get Swift version
-   - Check if Open Island is running: `ps aux | grep -i "open.island\|OpenIslandApp" | grep -v grep`
+   - Check if Poke Island is running: `ps aux | grep -i "open.island\|OpenIslandApp" | grep -v grep`
    - Get the app version: `defaults read ~/Applications/Open\ Island\ Dev.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo "unknown"`
    - Check which terminal I'm using
 
@@ -67,7 +67,7 @@ Have an idea? Let your agent draft the proposal for you.
 <summary>Click to expand the prompt</summary>
 
 ```
-I'd like to request a feature for Open Island (https://github.com/Octane0411/open-vibe-island).
+I'd like to request a feature for Poke Island (https://github.com/Octane0411/open-vibe-island).
 
 Please help me file a GitHub issue. Do the following:
 
@@ -94,7 +94,7 @@ Repository: Octane0411/open-vibe-island
 
 ### About the Project
 
-Open Island is a native macOS companion app for AI coding agents. It sits in the notch/top-bar area and monitors local agent sessions, surfaces permission requests, answers questions, and provides "jump back" to the correct terminal context. Local-first, no server dependency.
+Poke Island is a native macOS companion app for AI coding agents. It sits in the notch/top-bar area and monitors local agent sessions, surfaces permission requests, answers questions, and provides "jump back" to the correct terminal context. Local-first, no server dependency.
 
 **Supported agents**: Codex, Claude Code
 

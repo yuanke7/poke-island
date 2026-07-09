@@ -1,6 +1,6 @@
 // Logos v4 — focus on Pill modifications + Horizon notch-ification.
 // All static (icons should never animate). Pure black/white + warm paper.
-// Goal: keep pill-level restraint, but add just enough to be distinctly "Open Island".
+// Goal: keep pill-level restraint, but add just enough to be distinctly "Poke Island".
 
 // ---------- Shared container ----------
 function Squircle_v4({ size = 200, tone = 'paper', children, pad = 0 }) {

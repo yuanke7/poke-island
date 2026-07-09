@@ -92,7 +92,7 @@ struct PairingView: View {
                         Text("未发现 Mac")
                             .font(.headline)
 
-                        Text("请确保 Mac 上的 Open Island 正在运行，且 Mac 和 iPhone 在同一 WiFi 网络下。")
+                        Text("请确保 Mac 上的 Poke Island 正在运行，且 Mac 和 iPhone 在同一 WiFi 网络下。")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)

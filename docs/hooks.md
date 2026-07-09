@@ -24,11 +24,11 @@ Agent
 
 ## Skip Hooks For Delegated Control
 
-Set `OPEN_ISLAND_SKIP_HOOKS=1` on a child agent process when another local controller intentionally owns permission handling for that run. The hook CLI exits immediately without reading or forwarding the payload, so the agent continues without Open Island UI intervention.
+Set `OPEN_ISLAND_SKIP_HOOKS=1` on a child agent process when another local controller intentionally owns permission handling for that run. The hook CLI exits immediately without reading or forwarding the payload, so the agent continues without Poke Island UI intervention.
 
 `VIBE_ISLAND_SKIP=1` is also recognized as a legacy compatibility alias.
 
-This is meant for per-process launches. Do not set it globally unless you want Open Island hooks disabled for every agent started from that environment.
+This is meant for per-process launches. Do not set it globally unless you want Poke Island hooks disabled for every agent started from that environment.
 
 **Entry point**: [`Sources/OpenIslandHooks/main.swift`](../Sources/OpenIslandHooks/main.swift)
 
@@ -56,7 +56,7 @@ The managed Codex hook installer (`CodexHookInstaller`) installs `SessionStart`,
 
 The installer chooses the Codex hook feature flag that the local Codex CLI advertises. Newer Codex builds use `[features].hooks = true`; older builds use the legacy `[features].codex_hooks = true`. Status checks recognize both keys, and managed installs migrate between them when the local Codex version changes.
 
-After hooks are installed or changed, Codex may require a manual trust review before running them. Open `/hooks` inside Codex CLI and approve the expected Open Island hook entries. This approval gate belongs to Codex and is not bypassed by Open Island.
+After hooks are installed or changed, Codex may require a manual trust review before running them. Open `/hooks` inside Codex CLI and approve the expected Poke Island hook entries. This approval gate belongs to Codex and is not bypassed by Poke Island.
 
 The `CodexHookPayload` model and `BridgeServer` can parse richer events (`PreToolUse`, `PostToolUse`) when they are present in the hook payload, and will surface them in the UI if received. However, these per-tool lifecycle events are **not** installed by the managed installer and must be configured manually if desired.
 
@@ -92,7 +92,7 @@ The `CodexHookPayload` model and `BridgeServer` can parse richer events (`PreToo
 The app can block a command by writing this to stdout:
 
 ```json
-{"decision": "block", "reason": "Blocked by Open Island"}
+{"decision": "block", "reason": "Blocked by Poke Island"}
 ```
 
 #### `PermissionRequest`

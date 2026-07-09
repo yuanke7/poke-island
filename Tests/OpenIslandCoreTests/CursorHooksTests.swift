@@ -60,13 +60,13 @@ struct CursorHooksTests {
         let directive = CursorHookDirective(
             continue: true,
             permission: .deny,
-            agentMessage: "Denied by Open Island."
+            agentMessage: "Denied by Poke Island."
         )
         let data = try JSONEncoder().encode(directive)
         let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
 
         #expect(object["permission"] as? String == "deny")
-        #expect(object["agentMessage"] as? String == "Denied by Open Island.")
+        #expect(object["agentMessage"] as? String == "Denied by Poke Island.")
     }
 
     @Test

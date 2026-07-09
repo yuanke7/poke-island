@@ -296,7 +296,7 @@ public final class ClaudeStatusLineInstallationManager: @unchecked Sendable {
         #"""
         #!/bin/bash
         # Claude Code StatusLine Script (wrapper mode)
-        # Auto-configured by Open Island.
+        # Auto-configured by Poke Island.
         # The delegate script holds the user's original statusLine.command.
         # Keep the rate_limits cache line intact — it feeds the notch usage panel.
         input=$(cat)
@@ -310,21 +310,21 @@ public final class ClaudeStatusLineInstallationManager: @unchecked Sendable {
     /// from `settings.json`, so embedding it as a script body runs with identical semantics
     /// without the escaping problems of `bash -c "$ORIG"`.
     public static func wrappedDelegateScript(originalCommand: String) -> String {
-        "#!/bin/bash\n# Original Claude Code statusLine.command preserved by Open Island.\n\(originalCommand)\n"
+        "#!/bin/bash\n# Original Claude Code statusLine.command preserved by Poke Island.\n\(originalCommand)\n"
     }
 
     public static func managedScript(cacheURL: URL = managedCacheURL) -> String {
         #"""
         #!/bin/bash
         # Claude Code StatusLine Script
-        # Auto-configured by Open Island
+        # Auto-configured by Poke Island
         # FOR AI ASSISTANTS EDITING THIS FILE:
         # This script receives JSON from Claude Code via stdin on
         # every assistant message. The user wants to customize their
         # status line display, so please ADD your code to this file.
         # Do NOT create a separate script or change statusLine.command.
         # IMPORTANT: Keep the rate_limits cache line below intact.
-        # It feeds usage data (5h/7d quotas) to the Open Island
+        # It feeds usage data (5h/7d quotas) to the Poke Island
         # Notch panel. Removing it will degrade the usage display.
         input=$(cat)
         _rl=$(echo "$input" | jq -c '.rate_limits // empty' 2>/dev/null)

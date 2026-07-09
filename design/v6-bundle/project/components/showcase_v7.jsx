@@ -67,7 +67,7 @@ function V7Showcase() {
   return (
     <div className="app v3">
       <header className="topbar">
-        <div className="brand"><span className="dot-v3" /><span>Open Island · Logo v7 — from I & M</span></div>
+        <div className="brand"><span className="dot-v3" /><span>Poke Island · Logo v7 — from I & M</span></div>
         <span className="meta mono">// pulse-line + breathing-bar DNA</span>
         <div className="spacer" />
         <span className="chip">tone: {tone}</span>

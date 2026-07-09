@@ -2,7 +2,7 @@ import Foundation
 import Network
 import os
 
-/// Discovered Mac running Open Island.
+/// Discovered Mac running Poke Island.
 struct DiscoveredMac: Identifiable, Hashable {
     let id: String          // NWBrowser.Result identifier
     let name: String        // Human-readable Mac name from Bonjour TXT or service name

@@ -3,8 +3,8 @@ import Foundation
 /// Centralizes the per-process hook skip environment contract.
 /// 集中管理“单次子进程跳过 hook”的环境变量协议。
 public enum HookSkipConfiguration {
-    /// Preferred Open Island environment key for disabling hooks in this process.
-    /// Open Island 推荐使用的当前进程 hook 跳过开关。
+    /// Preferred Poke Island environment key for disabling hooks in this process.
+    /// Poke Island 推荐使用的当前进程 hook 跳过开关。
     public static let openIslandSkipKey = "OPEN_ISLAND_SKIP_HOOKS"
     /// Compatibility alias used by existing Vibe Island integrations.
     /// 兼容已有 Vibe Island 集成使用的旧开关。

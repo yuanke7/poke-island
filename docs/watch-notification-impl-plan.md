@@ -149,7 +149,7 @@ ios/
 
 ```xml
 <key>NSLocalNetworkUsageDescription</key>
-<string>Open Island needs to discover your Mac on the local network to receive agent notifications.</string>
+<string>Poke Island needs to discover your Mac on the local network to receive agent notifications.</string>
 <key>NSBonjourServices</key>
 <array>
     <string>_openisland._tcp</string>

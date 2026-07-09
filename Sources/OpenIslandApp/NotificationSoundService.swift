@@ -10,7 +10,7 @@ enum OpenIslandEventSound: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .startup: "OpenIsland startup"
+        case .startup: "Poke Island startup"
         case .thinking: "User message / thinking"
         case .completed: "Model replied"
         case .failed: "Failure / exception"

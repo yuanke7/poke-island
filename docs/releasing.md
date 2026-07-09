@@ -1,6 +1,6 @@
 # Releasing
 
-How to cut a new GitHub release for Open Island.
+How to cut a new GitHub release for Poke Island.
 
 ## Versioning
 
@@ -20,11 +20,11 @@ Follow [Semantic Versioning](https://semver.org/):
    OPEN_ISLAND_EDDSA_PUBLIC_KEY="<your-public-key>" \
    zsh scripts/package-app.sh
    ```
-   This produces `output/package/Open Island.dmg` and `output/package/Open Island.zip`.
+   This produces `output/package/Poke Island.dmg` and `output/package/Poke Island.zip`.
 3. **Sign the update zip with EdDSA** (for Sparkle auto-update):
    ```bash
    .build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework/Versions/B/bin/sign_update \
-     "output/package/Open Island.zip"
+     "output/package/Poke Island.zip"
    ```
    Copy the `sparkle:edSignature` and `length` values for the appcast entry.
 4. **Update `appcast.xml`** in the repo root — add a new `<item>` entry with the version, download URL, EdDSA signature, and length. See the "Sparkle Appcast" section below.
@@ -32,10 +32,10 @@ Follow [Semantic Versioning](https://semver.org/):
 6. **Create the release**:
    ```bash
    gh release create v<version> \
-     "output/package/Open Island.dmg#Open.Island.dmg" \
-     "output/package/Open Island.zip#Open.Island.zip" \
+     "output/package/Poke Island.dmg#Open.Island.dmg" \
+     "output/package/Poke Island.zip#Open.Island.zip" \
      --target main \
-     --title "Open Island v<version> — <Title>" \
+     --title "Poke Island v<version> — <Title>" \
      --notes-file release-notes.md
    ```
 7. **Verify**: open the release page and confirm assets are downloadable.
@@ -45,7 +45,7 @@ Follow [Semantic Versioning](https://semver.org/):
 All release notes **must be bilingual** (English + Simplified Chinese). Use the following template:
 
 ```markdown
-## Open Island v<version> — <Title>
+## Poke Island v<version> — <Title>
 
 ### Changes since v<prev> | 自 v<prev> 以来的变更
 
@@ -78,14 +78,14 @@ All release notes **must be bilingual** (English + Simplified Chinese). Use the 
 ```markdown
 ## Installation | 安装说明
 
-1. Download **Open Island.dmg**, open it, and drag **Open Island** to **Applications**.
-   下载 **Open Island.dmg**，打开后将 **Open Island** 拖入 **Applications**。
+1. Download **Poke Island.dmg**, open it, and drag **Poke Island** to **Applications**.
+   下载 **Poke Island.dmg**，打开后将 **Poke Island** 拖入 **Applications**。
 
-2. Since this is an unsigned app, macOS will show **"Open Island is damaged"** when you try to open it. Run this command in Terminal to fix it:
-   由于应用未签名，macOS 会提示**「"Open Island"已损坏」**。请在终端中执行以下命令：
+2. Since this is an unsigned app, macOS will show **"Poke Island is damaged"** when you try to open it. Run this command in Terminal to fix it:
+   由于应用未签名，macOS 会提示**「"Poke Island"已损坏」**。请在终端中执行以下命令：
 
    ```bash
-   xattr -dr com.apple.quarantine "/Applications/Open Island.app"
+   xattr -dr com.apple.quarantine "/Applications/Poke Island.app"
    ```
 
 3. Requirements: **macOS 14+**, **Apple Silicon** (M1/M2/M3/M4/M5).
@@ -101,8 +101,8 @@ Every release ships two artifacts:
 
 | File | Purpose |
 |------|---------|
-| `Open Island.dmg` | Styled disk image with drag-to-Applications |
-| `Open Island.zip` | Plain zip for automation / CI downloads |
+| `Poke Island.dmg` | Styled disk image with drag-to-Applications |
+| `Poke Island.zip` | Plain zip for automation / CI downloads |
 
 ## Sparkle Appcast
 

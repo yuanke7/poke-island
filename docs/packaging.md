@@ -5,9 +5,9 @@ This repository can now produce a local macOS app bundle from the Swift package 
 ## Current Shape
 
 - `zsh scripts/package-app.sh` builds `OpenIslandApp`, `OpenIslandHooks`, and `OpenIslandSetup` in release mode.
-- The script creates `output/package/Open Island.app`.
+- The script creates `output/package/Poke Island.app`.
 - The bundle embeds helper binaries inside `Contents/Helpers/` so the app can still locate `OpenIslandHooks` after it leaves the repository checkout.
-- The script also creates `output/package/Open Island.zip` for local sharing or later notarization.
+- The script also creates `output/package/Poke Island.zip` for local sharing or later notarization.
 
 ## Unsigned First
 
@@ -21,14 +21,14 @@ security find-identity -v -p codesigning
 
 If that command reports `0 valid identities found`, packaging is limited to unsigned output until the certificate is created in the Apple Developer account and imported into the login keychain.
 
-### "Open Island is damaged and can't be opened"
+### "Poke Island is damaged and can't be opened"
 
 This Gatekeeper error appears when macOS quarantines an unsigned or un-notarized download. There are two workarounds:
 
 **Option 1 — remove quarantine (internal/dev use only):**
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Open Island.app"
+xattr -dr com.apple.quarantine "/Applications/Poke Island.app"
 ```
 
 Or right-click the app → **Open** → click **Open** to bypass the block once.

@@ -66,7 +66,7 @@ function V5Showcase() {
   return (
     <div className="app v3">
       <header className="topbar">
-        <div className="brand"><span className="dot-v3" /><span>Open Island · Logo v5 — symbol system</span></div>
+        <div className="brand"><span className="dot-v3" /><span>Poke Island · Logo v5 — symbol system</span></div>
         <span className="meta mono">// logo.left = notch.idle</span>
         <div className="spacer" />
         <span className="chip">7 symbols</span>

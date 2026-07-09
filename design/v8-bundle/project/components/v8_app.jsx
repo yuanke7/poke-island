@@ -188,7 +188,7 @@ function V8App(){
   return (
     <div className="app v3 v8">
       <header className="topbar">
-        <div className="brand"><span className="dot-v3"/><span>Open Island · v8 — engineering-aligned</span></div>
+        <div className="brand"><span className="dot-v3"/><span>Poke Island · v8 — engineering-aligned</span></div>
         <span className="meta mono">// 只画工程能拿到的</span>
         <div className="spacer"/>
         <span className="meta-pill"><span className="dot"/>10 agents · 15+ terminals · 4 session states</span>

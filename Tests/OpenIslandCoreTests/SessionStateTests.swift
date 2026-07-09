@@ -178,7 +178,7 @@ struct SessionStateTests {
             .actionableStateResolved(
                 ActionableStateResolved(
                     sessionID: "claude-approval",
-                    summary: "Approval was handled outside Open Island.",
+                    summary: "Approval was handled outside Poke Island.",
                     timestamp: startedAt.addingTimeInterval(10)
                 )
             )
@@ -186,7 +186,7 @@ struct SessionStateTests {
 
         #expect(state.session(id: "claude-approval")?.phase == .running)
         #expect(state.session(id: "claude-approval")?.permissionRequest == nil)
-        #expect(state.session(id: "claude-approval")?.summary == "Approval was handled outside Open Island.")
+        #expect(state.session(id: "claude-approval")?.summary == "Approval was handled outside Poke Island.")
     }
 
     @Test
@@ -214,7 +214,7 @@ struct SessionStateTests {
             .actionableStateResolved(
                 ActionableStateResolved(
                     sessionID: "claude-question",
-                    summary: "Approval was handled outside Open Island.",
+                    summary: "Approval was handled outside Poke Island.",
                     timestamp: startedAt.addingTimeInterval(10)
                 )
             )
@@ -976,7 +976,7 @@ struct SessionStateTests {
                   {
                     "type": "command",
                     "command": "'/tmp/OpenIslandHooks'",
-                    "statusMessage": "Managed by Open Island"
+                    "statusMessage": "Managed by Poke Island"
                   },
                   {
                     "type": "command",

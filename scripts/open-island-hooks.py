@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Open Island hook client — portable Python implementation.
+Poke Island hook client — portable Python implementation.
 
 Drop-in replacement for the Swift OpenIslandHooks binary.
 Works on macOS and Linux with Python 3.6+ and zero third-party dependencies.

@@ -311,7 +311,7 @@ git commit -m "feat: mark OpenCode sessions as hook-managed and trigger persiste
 - [ ] **Step 1: Verify OpenCode sessions are saved and restored**
 1. Start OpenCode session (via script or real usage).
 2. Check `~/Library/Application Support/open-island/opencode-session-registry.json`.
-3. Restart Open Island.
+3. Restart Poke Island.
 4. Verify session is restored in the UI.
 
 - [ ] **Step 2: Verify metadata merging**

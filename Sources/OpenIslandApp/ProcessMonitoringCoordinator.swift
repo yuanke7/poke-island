@@ -376,7 +376,7 @@ final class ProcessMonitoringCoordinator {
             claimedGeminiSessionIDs.insert(matched.id)
         }
 
-        // Kimi sessions are hook-managed and use UUIDs that Open Island cannot
+        // Kimi sessions are hook-managed and use UUIDs that Poke Island cannot
         // recover from ps/lsof. As long as any kimi process exists, keep every
         // tracked Kimi session alive so Stop/completed sessions don't get
         // evicted by the hook-managed liveness fallback in
@@ -861,7 +861,7 @@ final class ProcessMonitoringCoordinator {
     /// `NSRunningApplication.runningApplications(withBundleIdentifier:)`
     /// has been observed to intermittently return an empty array even
     /// when the app is running (likely a brief indexing window after
-    /// app launch / conversation switch), which would cause Open Island
+    /// app launch / conversation switch), which would cause Poke Island
     /// to incorrectly kill visible Codex sessions.
     static func isCodexDesktopAppRunning() -> Bool {
         NSWorkspace.shared.runningApplications.contains { app in

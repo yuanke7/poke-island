@@ -25,7 +25,7 @@ The repository harness exists to make a round of work mechanically checkable. Th
 
 `scripts/smoke-dev-app.sh` sets harness environment variables before launching `OpenIslandApp`.
 
-The smoke path is intentionally aimed at the repository executable, not `~/Applications/Open Island Dev.app`. The dev bundle remains useful for manual end-to-end OSS verification, but harness automation should target the current branch's `OpenIslandApp` binary so the verification result matches the checked-out code exactly.
+The smoke path is intentionally aimed at the repository executable, not `~/Applications/Poke Island.app`. The dev bundle remains useful for manual end-to-end OSS verification, but harness automation should target the current branch's `OpenIslandApp` binary so the verification result matches the checked-out code exactly.
 
 - `OPEN_ISLAND_HARNESS_SCENARIO` selects a case from `IslandDebugScenario`
 - `OPEN_ISLAND_HARNESS_PRESENT_OVERLAY` mirrors the scenario onto the real island overlay

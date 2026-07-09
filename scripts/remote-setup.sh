@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Open Island — remote SSH setup
+# Poke Island — remote SSH setup
 #
 # Deploys the Python hook client to a remote server and configures
 # Claude Code to use it.  Also prints the SSH config snippet needed
@@ -39,7 +39,7 @@ echo ""
 echo "==> Configuring Claude Code hooks on $REMOTE ..."
 # Build the hooks JSON fragment.
 # Use the *local* UID in the socket path so the remote hook connects to the
-# forwarded socket created by the local Open Island app.  The heredoc is
+# forwarded socket created by the local Poke Island app.  The heredoc is
 # unquoted so that $SOCKET_NAME is expanded.
 HOOK_CMD="OPEN_ISLAND_SOCKET_PATH=/tmp/$SOCKET_NAME python3 ~/.local/bin/open-island-hooks.py --source claude"
 HOOK_ENTRY="{\"matcher\": \"\", \"hooks\": [{\"type\": \"command\", \"command\": \"$HOOK_CMD\"}]}"

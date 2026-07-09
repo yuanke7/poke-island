@@ -380,7 +380,7 @@ function Logo_NotchMark({ size = 120, tone = 'paper' }) {
   );
 }
 
-// L2 · Notch + wordmark lockup — real logo: shape + "Open Island"
+// L2 · Notch + wordmark lockup — real logo: shape + "Poke Island"
 function Logo_Lockup({ size = 360, tone = 'paper' }) {
   const ink = tone === 'ink' ? '#f1ead9' : '#0d0d0f';
   const w = 360, h = 90;

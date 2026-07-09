@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the DMG installer background image for Open Island.
+"""Generate the DMG installer background image for Poke Island.
 
 Produces a 660x400 (Retina: 1320x800) PNG with:
 - Dark gradient background matching the app's brand palette

@@ -36,6 +36,7 @@ final class OverlayPanelController {
     private var hoverTimer: DispatchWorkItem?
     private var hoverCancelGrace: DispatchWorkItem?
     private var migratingDisplayID: String?
+    private var displayMigrationGeneration: UInt64 = 0
     weak var model: AppModel?
     private(set) var notchRect: NSRect = .zero
 
@@ -164,7 +165,8 @@ final class OverlayPanelController {
         if panel.frame != windowFrame {
             let isDisplayMigration = panel.screen != screen
             if animated && isDisplayMigration {
-                revealPanel(panel, to: windowFrame, on: screen)
+                revealPanel(panel, to: windowFrame, on: screen, preferredScreenID: preferredScreenID)
+                return model?.overlayPlacementDiagnostics
             } else {
                 panel.setFrame(windowFrame, display: true)
             }
@@ -277,15 +279,34 @@ final class OverlayPanelController {
         return screen.localizedName
     }
 
-    private func revealPanel(_ panel: NSPanel, to windowFrame: NSRect, on screen: NSScreen) {
+    private func revealPanel(
+        _ panel: NSPanel,
+        to windowFrame: NSRect,
+        on screen: NSScreen,
+        preferredScreenID: String?
+    ) {
         let targetDisplayID = screenID(for: screen)
         guard migratingDisplayID != targetDisplayID else { return }
         migratingDisplayID = targetDisplayID
+        displayMigrationGeneration &+= 1
+        let generation = displayMigrationGeneration
 
         panel.alphaValue = 1
-        panel.setFrame(windowFrame, display: true)
-        model?.triggerDisplayReveal()
-        migratingDisplayID = nil
+        model?.triggerDisplayRetreat()
+
+        let delay = model?.islandCloseAnimationDuration ?? 0.18
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self, weak panel] in
+            guard let self, let panel else { return }
+            guard self.displayMigrationGeneration == generation else { return }
+            panel.setFrame(windowFrame, display: true)
+            self.computeNotchRect(screen: screen)
+            self.model?.overlayPlacementDiagnostics = OverlayDisplayResolver.diagnostics(
+                preferredScreenID: preferredScreenID ?? targetDisplayID,
+                panelSize: windowFrame.size
+            )
+            self.model?.triggerDisplayReveal()
+            self.migratingDisplayID = nil
+        }
     }
 
     private func migrateAutomaticPanelToMouseScreen(_ screenPoint: NSPoint) {
@@ -298,7 +319,7 @@ final class OverlayPanelController {
             return
         }
 
-        positionPanel(panel, preferredScreenID: nil, animated: true)
+        model.overlayPlacementDiagnostics = positionPanel(panel, preferredScreenID: nil, animated: true)
     }
 
     // MARK: - Mouse event monitoring
@@ -543,7 +564,7 @@ final class OverlayPanelController {
         }
 
         if panel?.screen != screen, let panel {
-            positionPanel(panel, preferredScreenID: nil, animated: true)
+            model.overlayPlacementDiagnostics = positionPanel(panel, preferredScreenID: nil, animated: true)
         }
         return true
     }

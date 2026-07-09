@@ -163,7 +163,7 @@ public final class OpenCodePluginInstallationManager: @unchecked Sendable {
 
         var plugins = (json["plugin"] as? [String]) ?? []
 
-        // Remove any existing Open Island plugin references
+        // Remove any existing Poke Island plugin references
         plugins.removeAll { $0 == ref || $0.hasSuffix("/\(Self.pluginFileName)") }
         plugins.append(ref)
 

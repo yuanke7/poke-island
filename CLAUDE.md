@@ -2,7 +2,7 @@
 
 ## Project
 
-Open Island — native macOS companion for AI coding agents. Sits in the notch / top bar, monitors local sessions, surfaces permission and question events, and jumps back to the right terminal/IDE. Local-first, no server.
+Poke Island — native macOS companion for AI coding agents. Sits in the notch / top bar, monitors local sessions, surfaces permission and question events, and jumps back to the right terminal/IDE. Local-first, no server.
 
 - **Target product** (closed-source baseline): https://vibeisland.app/
 - **OSS reference** (design ideas only, not a spec): https://github.com/farouqaldori/claude-island
@@ -31,9 +31,9 @@ swift build -c release --product OpenIslandHooks
 
 For Xcode: open `Package.swift`.
 
-## Dev app (Open Island Dev.app)
+## Dev app (Poke Island.app)
 
-`~/Applications/Open Island Dev.app` is a wrapper around the repo build, not a separate product.
+`~/Applications/Poke Island.app` is a wrapper around the repo build, not a separate product.
 
 - **Launch**: `zsh scripts/launch-dev-app.sh` — never just `open -na`, the bundle goes stale.
 - **One-time signing**: `zsh scripts/setup-dev-signing.sh` — without this every rebuild changes cdhash and silently invalidates TCC grants (Accessibility, Automation). Required for any AX-touching feature (precision jump, keystroke/menu injection).
@@ -64,7 +64,7 @@ The project is past MVP and welcomes new ideas and creative directions, but the 
 - Triggered by pushing a `v*` tag to `main`. CI builds, signs, notarizes, publishes the DMG. Don't create the GitHub release manually — edit the draft CI produces.
 - Before tagging: `git fetch origin main` and review every merged PR since the last tag. Don't trust memory.
 - Bilingual required (English + 简体中文). Template: `.github/RELEASE_TEMPLATE.md`. Entry format: `- **Category**: English (#PR)\n  中文 (#PR)`. External contributors get `— Thanks @user` on the English line.
-- Title: `Open Island vX.Y.Z — Short English Title`. Installation section bilingual.
+- Title: `Poke Island vX.Y.Z — Short English Title`. Installation section bilingual.
 
 ## Conventions
 

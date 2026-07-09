@@ -180,7 +180,7 @@ function Logo_WordLockup({ size = 420, tone = 'paper', mark = 'beacon' }) {
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: size * 0.045 }}>
       <M size={size * 0.28} tone={tone} />
       <div style={{ fontFamily: 'Inter, sans-serif', color: ink, lineHeight: 1, letterSpacing: '-0.03em' }}>
-        <div style={{ fontSize: size * 0.095, fontWeight: 700 }}>Open Island</div>
+        <div style={{ fontSize: size * 0.095, fontWeight: 700 }}>Poke Island</div>
         <div style={{ fontSize: size * 0.034, fontWeight: 500, opacity: 0.55, marginTop: size * 0.012, fontFamily: 'JetBrains Mono, monospace' }}>
           agents in your menu bar
         </div>
